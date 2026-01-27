@@ -76,34 +76,36 @@ class _ScenarioListScreenState extends ConsumerState<ScenarioListScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                'ソート',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(
+                  'ソート',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
-            ),
-            ...ScenarioSort.values.map((sort) {
-              return RadioListTile<ScenarioSort>(
-                title: Text(sort.displayName),
-                value: sort,
-                groupValue: currentSort,
-                onChanged: (value) {
-                  if (value != null) {
-                    ref.read(scenarioSortProvider.notifier).setSort(value);
-                  }
-                  Navigator.of(context).pop();
-                },
-              );
-            }),
-            const SizedBox(height: 8),
-          ],
+              ...ScenarioSort.values.map((sort) {
+                return RadioListTile<ScenarioSort>(
+                  title: Text(sort.displayName),
+                  value: sort,
+                  groupValue: currentSort,
+                  onChanged: (value) {
+                    if (value != null) {
+                      ref.read(scenarioSortProvider.notifier).setSort(value);
+                    }
+                    Navigator.of(context).pop();
+                  },
+                );
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
