@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/database/database.dart';
+import '../../data/repositories/player_repository.dart';
+import '../../data/repositories/play_session_repository.dart';
 import '../../data/repositories/scenario_repository.dart';
 import '../../data/repositories/system_repository.dart';
 import '../../data/repositories/tag_repository.dart';
@@ -19,4 +21,12 @@ final tagRepositoryProvider = Provider<TagRepository>((ref) {
 
 final scenarioRepositoryProvider = Provider<ScenarioRepository>((ref) {
   return ScenarioRepository(ref.watch(appDatabaseProvider));
+});
+
+final playerRepositoryProvider = Provider<PlayerRepository>((ref) {
+  return PlayerRepository(ref.watch(appDatabaseProvider));
+});
+
+final playSessionRepositoryProvider = Provider<PlaySessionRepository>((ref) {
+  return PlaySessionRepository(ref.watch(appDatabaseProvider));
 });

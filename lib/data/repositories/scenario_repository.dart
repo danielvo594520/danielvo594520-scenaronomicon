@@ -163,12 +163,20 @@ class ScenarioRepository {
     });
   }
 
-  /// シナリオ削除（タグ割当も削除）
+  /// シナリオ削除（タグ割当削除 + プレイ記録のscenarioIdをnullに設定）
   Future<void> delete(int id) async {
-    await (_db.delete(_db.scenarioTags)
-          ..where((t) => t.scenarioId.equals(id)))
-        .go();
-    await (_db.delete(_db.scenarios)..where((t) => t.id.equals(id))).go();
+    await _db.transaction(() async {
+      // タグ割当を削除
+      await (_db.delete(_db.scenarioTags)
+            ..where((t) => t.scenarioId.equals(id)))
+          .go();
+      // プレイ記録のscenarioIdをnullに設定
+      await (_db.update(_db.playSessions)
+            ..where((s) => s.scenarioId.equals(id)))
+          .write(const PlaySessionsCompanion(scenarioId: Value(null)));
+      // シナリオ削除
+      await (_db.delete(_db.scenarios)..where((t) => t.id.equals(id))).go();
+    });
   }
 
   ScenarioWithTags _toScenarioWithTags(
