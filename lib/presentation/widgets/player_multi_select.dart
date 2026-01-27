@@ -1,8 +1,7 @@
-import 'package:drift/drift.dart' show OrderingTerm;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/database_provider.dart';
+import '../providers/player_provider.dart';
 
 /// プレイヤー複数選択ウィジェット（FilterChipベース）
 class PlayerMultiSelect extends ConsumerWidget {
@@ -17,7 +16,7 @@ class PlayerMultiSelect extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playersAsync = ref.watch(_allPlayersForSelectProvider);
+    final playersAsync = ref.watch(playerListProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,11 +65,3 @@ class PlayerMultiSelect extends ConsumerWidget {
     );
   }
 }
-
-/// プレイヤー一覧取得用の内部プロバイダー
-final _allPlayersForSelectProvider = FutureProvider((ref) async {
-  final db = ref.watch(appDatabaseProvider);
-  return (db.select(db.players)
-        ..orderBy([(p) => OrderingTerm.asc(p.name)]))
-      .get();
-});

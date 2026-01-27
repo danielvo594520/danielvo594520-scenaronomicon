@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers/play_session_provider.dart';
+import '../../providers/player_provider.dart';
 import '../../widgets/player_multi_select.dart';
 import '../../widgets/scenario_search_dropdown.dart';
 
@@ -191,6 +192,13 @@ class _PlaySessionFormScreenState
         ref.invalidate(scenarioPlayCountProvider(_selectedScenarioId!));
         ref.invalidate(
             playSessionsByScenarioProvider(_selectedScenarioId!));
+      }
+
+      // プレイヤーの参加数を更新
+      ref.invalidate(playerListProvider);
+      for (final playerId in _selectedPlayerIds) {
+        ref.invalidate(playerSessionCountProvider(playerId));
+        ref.invalidate(playerPlayedScenariosProvider(playerId));
       }
 
       if (mounted) {
