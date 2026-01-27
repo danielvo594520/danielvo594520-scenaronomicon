@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../providers/play_session_provider.dart';
 import '../../providers/scenario_provider.dart';
 import '../../widgets/delete_confirm_dialog.dart';
 import '../../widgets/status_chip.dart';
@@ -152,7 +154,7 @@ class ScenarioDetailScreen extends ConsumerWidget {
                 Text(scenario.memo!),
               ],
 
-              // プレイ記録プレースホルダー
+              // プレイ記録セクション
               const Divider(),
               const SizedBox(height: 8),
               Text(
@@ -162,16 +164,82 @@ class ScenarioDetailScreen extends ConsumerWidget {
                     ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'プレイ回数: 0回',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Phase 2 で実装予定',
-                style: TextStyle(
-                    color: Colors.grey[400], fontStyle: FontStyle.italic),
-              ),
+
+              // プレイ回数
+              ref.watch(scenarioPlayCountProvider(scenario.id)).when(
+                    loading: () => const LinearProgressIndicator(),
+                    error: (_, __) => const Text('読み込みエラー'),
+                    data: (count) => Text(
+                      'プレイ回数: $count回',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
+
+              const SizedBox(height: 12),
+
+              // プレイ履歴
+              ref
+                  .watch(playSessionsByScenarioProvider(scenario.id))
+                  .when(
+                    loading: () => const Center(
+                        child: CircularProgressIndicator()),
+                    error: (_, __) =>
+                        const Text('履歴の読み込みに失敗しました'),
+                    data: (sessions) {
+                      if (sessions.isEmpty) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'まだプレイ記録がありません',
+                              style:
+                                  TextStyle(color: Colors.grey[400]),
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              onPressed: () => context.push(
+                                '/sessions/new?scenarioId=${scenario.id}',
+                              ),
+                              icon: const Icon(Icons.add),
+                              label: const Text('プレイ記録を追加'),
+                            ),
+                          ],
+                        );
+                      }
+
+                      final dateFormatter = DateFormat('yyyy/MM/dd');
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ...sessions.map((session) {
+                            return Card(
+                              child: ListTile(
+                                leading: const Icon(Icons.event),
+                                title: Text(dateFormatter
+                                    .format(session.playedAt)),
+                                subtitle:
+                                    session.playerNames.isNotEmpty
+                                        ? Text(session.playerNames)
+                                        : null,
+                                trailing:
+                                    const Icon(Icons.chevron_right),
+                                onTap: () => context.push(
+                                    '/sessions/${session.id}/edit'),
+                              ),
+                            );
+                          }),
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            onPressed: () => context.push(
+                              '/sessions/new?scenarioId=${scenario.id}',
+                            ),
+                            icon: const Icon(Icons.add),
+                            label: const Text('プレイ記録を追加'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
             ],
           ),
         ),

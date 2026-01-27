@@ -1361,6 +1361,847 @@ class ScenarioTagsCompanion extends UpdateCompanion<ScenarioTag> {
   }
 }
 
+class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlayersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, note, createdAt, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'players';
+  @override
+  VerificationContext validateIntegrity(Insertable<Player> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Player map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Player(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $PlayersTable createAlias(String alias) {
+    return $PlayersTable(attachedDatabase, alias);
+  }
+}
+
+class Player extends DataClass implements Insertable<Player> {
+  final int id;
+  final String name;
+  final String? note;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const Player(
+      {required this.id,
+      required this.name,
+      this.note,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  PlayersCompanion toCompanion(bool nullToAbsent) {
+    return PlayersCompanion(
+      id: Value(id),
+      name: Value(name),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Player.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Player(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  Player copyWith(
+          {int? id,
+          String? name,
+          Value<String?> note = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      Player(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        note: note.present ? note.value : this.note,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  Player copyWithCompanion(PlayersCompanion data) {
+    return Player(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Player(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, note, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Player &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class PlayersCompanion extends UpdateCompanion<Player> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const PlayersCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  PlayersCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.note = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  })  : name = Value(name),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<Player> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  PlayersCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<String?>? note,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return PlayersCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlayersCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PlaySessionsTable extends PlaySessions
+    with TableInfo<$PlaySessionsTable, PlaySession> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlaySessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _scenarioIdMeta =
+      const VerificationMeta('scenarioId');
+  @override
+  late final GeneratedColumn<int> scenarioId = GeneratedColumn<int>(
+      'scenario_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES scenarios (id)'));
+  static const VerificationMeta _playedAtMeta =
+      const VerificationMeta('playedAt');
+  @override
+  late final GeneratedColumn<DateTime> playedAt = GeneratedColumn<DateTime>(
+      'played_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _memoMeta = const VerificationMeta('memo');
+  @override
+  late final GeneratedColumn<String> memo = GeneratedColumn<String>(
+      'memo', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, scenarioId, playedAt, memo, createdAt, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'play_sessions';
+  @override
+  VerificationContext validateIntegrity(Insertable<PlaySession> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('scenario_id')) {
+      context.handle(
+          _scenarioIdMeta,
+          scenarioId.isAcceptableOrUnknown(
+              data['scenario_id']!, _scenarioIdMeta));
+    }
+    if (data.containsKey('played_at')) {
+      context.handle(_playedAtMeta,
+          playedAt.isAcceptableOrUnknown(data['played_at']!, _playedAtMeta));
+    } else if (isInserting) {
+      context.missing(_playedAtMeta);
+    }
+    if (data.containsKey('memo')) {
+      context.handle(
+          _memoMeta, memo.isAcceptableOrUnknown(data['memo']!, _memoMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlaySession map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlaySession(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      scenarioId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}scenario_id']),
+      playedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}played_at'])!,
+      memo: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}memo']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $PlaySessionsTable createAlias(String alias) {
+    return $PlaySessionsTable(attachedDatabase, alias);
+  }
+}
+
+class PlaySession extends DataClass implements Insertable<PlaySession> {
+  final int id;
+  final int? scenarioId;
+  final DateTime playedAt;
+  final String? memo;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const PlaySession(
+      {required this.id,
+      this.scenarioId,
+      required this.playedAt,
+      this.memo,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || scenarioId != null) {
+      map['scenario_id'] = Variable<int>(scenarioId);
+    }
+    map['played_at'] = Variable<DateTime>(playedAt);
+    if (!nullToAbsent || memo != null) {
+      map['memo'] = Variable<String>(memo);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  PlaySessionsCompanion toCompanion(bool nullToAbsent) {
+    return PlaySessionsCompanion(
+      id: Value(id),
+      scenarioId: scenarioId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scenarioId),
+      playedAt: Value(playedAt),
+      memo: memo == null && nullToAbsent ? const Value.absent() : Value(memo),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory PlaySession.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlaySession(
+      id: serializer.fromJson<int>(json['id']),
+      scenarioId: serializer.fromJson<int?>(json['scenarioId']),
+      playedAt: serializer.fromJson<DateTime>(json['playedAt']),
+      memo: serializer.fromJson<String?>(json['memo']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'scenarioId': serializer.toJson<int?>(scenarioId),
+      'playedAt': serializer.toJson<DateTime>(playedAt),
+      'memo': serializer.toJson<String?>(memo),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  PlaySession copyWith(
+          {int? id,
+          Value<int?> scenarioId = const Value.absent(),
+          DateTime? playedAt,
+          Value<String?> memo = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      PlaySession(
+        id: id ?? this.id,
+        scenarioId: scenarioId.present ? scenarioId.value : this.scenarioId,
+        playedAt: playedAt ?? this.playedAt,
+        memo: memo.present ? memo.value : this.memo,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  PlaySession copyWithCompanion(PlaySessionsCompanion data) {
+    return PlaySession(
+      id: data.id.present ? data.id.value : this.id,
+      scenarioId:
+          data.scenarioId.present ? data.scenarioId.value : this.scenarioId,
+      playedAt: data.playedAt.present ? data.playedAt.value : this.playedAt,
+      memo: data.memo.present ? data.memo.value : this.memo,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaySession(')
+          ..write('id: $id, ')
+          ..write('scenarioId: $scenarioId, ')
+          ..write('playedAt: $playedAt, ')
+          ..write('memo: $memo, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, scenarioId, playedAt, memo, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlaySession &&
+          other.id == this.id &&
+          other.scenarioId == this.scenarioId &&
+          other.playedAt == this.playedAt &&
+          other.memo == this.memo &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class PlaySessionsCompanion extends UpdateCompanion<PlaySession> {
+  final Value<int> id;
+  final Value<int?> scenarioId;
+  final Value<DateTime> playedAt;
+  final Value<String?> memo;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const PlaySessionsCompanion({
+    this.id = const Value.absent(),
+    this.scenarioId = const Value.absent(),
+    this.playedAt = const Value.absent(),
+    this.memo = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  PlaySessionsCompanion.insert({
+    this.id = const Value.absent(),
+    this.scenarioId = const Value.absent(),
+    required DateTime playedAt,
+    this.memo = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  })  : playedAt = Value(playedAt),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<PlaySession> custom({
+    Expression<int>? id,
+    Expression<int>? scenarioId,
+    Expression<DateTime>? playedAt,
+    Expression<String>? memo,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (scenarioId != null) 'scenario_id': scenarioId,
+      if (playedAt != null) 'played_at': playedAt,
+      if (memo != null) 'memo': memo,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  PlaySessionsCompanion copyWith(
+      {Value<int>? id,
+      Value<int?>? scenarioId,
+      Value<DateTime>? playedAt,
+      Value<String?>? memo,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return PlaySessionsCompanion(
+      id: id ?? this.id,
+      scenarioId: scenarioId ?? this.scenarioId,
+      playedAt: playedAt ?? this.playedAt,
+      memo: memo ?? this.memo,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (scenarioId.present) {
+      map['scenario_id'] = Variable<int>(scenarioId.value);
+    }
+    if (playedAt.present) {
+      map['played_at'] = Variable<DateTime>(playedAt.value);
+    }
+    if (memo.present) {
+      map['memo'] = Variable<String>(memo.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaySessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('scenarioId: $scenarioId, ')
+          ..write('playedAt: $playedAt, ')
+          ..write('memo: $memo, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PlaySessionPlayersTable extends PlaySessionPlayers
+    with TableInfo<$PlaySessionPlayersTable, PlaySessionPlayer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlaySessionPlayersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _playSessionIdMeta =
+      const VerificationMeta('playSessionId');
+  @override
+  late final GeneratedColumn<int> playSessionId = GeneratedColumn<int>(
+      'play_session_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES play_sessions (id)'));
+  static const VerificationMeta _playerIdMeta =
+      const VerificationMeta('playerId');
+  @override
+  late final GeneratedColumn<int> playerId = GeneratedColumn<int>(
+      'player_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES players (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [playSessionId, playerId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'play_session_players';
+  @override
+  VerificationContext validateIntegrity(Insertable<PlaySessionPlayer> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('play_session_id')) {
+      context.handle(
+          _playSessionIdMeta,
+          playSessionId.isAcceptableOrUnknown(
+              data['play_session_id']!, _playSessionIdMeta));
+    } else if (isInserting) {
+      context.missing(_playSessionIdMeta);
+    }
+    if (data.containsKey('player_id')) {
+      context.handle(_playerIdMeta,
+          playerId.isAcceptableOrUnknown(data['player_id']!, _playerIdMeta));
+    } else if (isInserting) {
+      context.missing(_playerIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {playSessionId, playerId};
+  @override
+  PlaySessionPlayer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlaySessionPlayer(
+      playSessionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}play_session_id'])!,
+      playerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}player_id'])!,
+    );
+  }
+
+  @override
+  $PlaySessionPlayersTable createAlias(String alias) {
+    return $PlaySessionPlayersTable(attachedDatabase, alias);
+  }
+}
+
+class PlaySessionPlayer extends DataClass
+    implements Insertable<PlaySessionPlayer> {
+  final int playSessionId;
+  final int playerId;
+  const PlaySessionPlayer(
+      {required this.playSessionId, required this.playerId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['play_session_id'] = Variable<int>(playSessionId);
+    map['player_id'] = Variable<int>(playerId);
+    return map;
+  }
+
+  PlaySessionPlayersCompanion toCompanion(bool nullToAbsent) {
+    return PlaySessionPlayersCompanion(
+      playSessionId: Value(playSessionId),
+      playerId: Value(playerId),
+    );
+  }
+
+  factory PlaySessionPlayer.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlaySessionPlayer(
+      playSessionId: serializer.fromJson<int>(json['playSessionId']),
+      playerId: serializer.fromJson<int>(json['playerId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'playSessionId': serializer.toJson<int>(playSessionId),
+      'playerId': serializer.toJson<int>(playerId),
+    };
+  }
+
+  PlaySessionPlayer copyWith({int? playSessionId, int? playerId}) =>
+      PlaySessionPlayer(
+        playSessionId: playSessionId ?? this.playSessionId,
+        playerId: playerId ?? this.playerId,
+      );
+  PlaySessionPlayer copyWithCompanion(PlaySessionPlayersCompanion data) {
+    return PlaySessionPlayer(
+      playSessionId: data.playSessionId.present
+          ? data.playSessionId.value
+          : this.playSessionId,
+      playerId: data.playerId.present ? data.playerId.value : this.playerId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaySessionPlayer(')
+          ..write('playSessionId: $playSessionId, ')
+          ..write('playerId: $playerId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(playSessionId, playerId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlaySessionPlayer &&
+          other.playSessionId == this.playSessionId &&
+          other.playerId == this.playerId);
+}
+
+class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
+  final Value<int> playSessionId;
+  final Value<int> playerId;
+  final Value<int> rowid;
+  const PlaySessionPlayersCompanion({
+    this.playSessionId = const Value.absent(),
+    this.playerId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PlaySessionPlayersCompanion.insert({
+    required int playSessionId,
+    required int playerId,
+    this.rowid = const Value.absent(),
+  })  : playSessionId = Value(playSessionId),
+        playerId = Value(playerId);
+  static Insertable<PlaySessionPlayer> custom({
+    Expression<int>? playSessionId,
+    Expression<int>? playerId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (playSessionId != null) 'play_session_id': playSessionId,
+      if (playerId != null) 'player_id': playerId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PlaySessionPlayersCompanion copyWith(
+      {Value<int>? playSessionId, Value<int>? playerId, Value<int>? rowid}) {
+    return PlaySessionPlayersCompanion(
+      playSessionId: playSessionId ?? this.playSessionId,
+      playerId: playerId ?? this.playerId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (playSessionId.present) {
+      map['play_session_id'] = Variable<int>(playSessionId.value);
+    }
+    if (playerId.present) {
+      map['player_id'] = Variable<int>(playerId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlaySessionPlayersCompanion(')
+          ..write('playSessionId: $playSessionId, ')
+          ..write('playerId: $playerId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1368,12 +2209,23 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TagsTable tags = $TagsTable(this);
   late final $ScenariosTable scenarios = $ScenariosTable(this);
   late final $ScenarioTagsTable scenarioTags = $ScenarioTagsTable(this);
+  late final $PlayersTable players = $PlayersTable(this);
+  late final $PlaySessionsTable playSessions = $PlaySessionsTable(this);
+  late final $PlaySessionPlayersTable playSessionPlayers =
+      $PlaySessionPlayersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [systems, tags, scenarios, scenarioTags];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        systems,
+        tags,
+        scenarios,
+        scenarioTags,
+        players,
+        playSessions,
+        playSessionPlayers
+      ];
   @override
   DriftDatabaseOptions get options =>
       const DriftDatabaseOptions(storeDateTimeAsText: true);
@@ -1810,6 +2662,21 @@ final class $$ScenariosTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$PlaySessionsTable, List<PlaySession>>
+      _playSessionsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.playSessions,
+              aliasName: $_aliasNameGenerator(
+                  db.scenarios.id, db.playSessions.scenarioId));
+
+  $$PlaySessionsTableProcessedTableManager get playSessionsRefs {
+    final manager = $$PlaySessionsTableTableManager($_db, $_db.playSessions)
+        .filter((f) => f.scenarioId.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_playSessionsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ScenariosTableFilterComposer
@@ -1892,6 +2759,19 @@ class $$ScenariosTableFilterComposer
         builder: (joinBuilder, parentComposers) =>
             $$ScenarioTagsTableFilterComposer(ComposerState($state.db,
                 $state.db.scenarioTags, joinBuilder, parentComposers)));
+    return f(composer);
+  }
+
+  ComposableFilter playSessionsRefs(
+      ComposableFilter Function($$PlaySessionsTableFilterComposer f) f) {
+    final $$PlaySessionsTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $state.db.playSessions,
+        getReferencedColumn: (t) => t.scenarioId,
+        builder: (joinBuilder, parentComposers) =>
+            $$PlaySessionsTableFilterComposer(ComposerState($state.db,
+                $state.db.playSessions, joinBuilder, parentComposers)));
     return f(composer);
   }
 }
@@ -1977,7 +2857,8 @@ class $$ScenariosTableTableManager extends RootTableManager<
     $$ScenariosTableUpdateCompanionBuilder,
     (Scenario, $$ScenariosTableReferences),
     Scenario,
-    PrefetchHooks Function({bool systemId, bool scenarioTagsRefs})> {
+    PrefetchHooks Function(
+        {bool systemId, bool scenarioTagsRefs, bool playSessionsRefs})> {
   $$ScenariosTableTableManager(_$AppDatabase db, $ScenariosTable table)
       : super(TableManagerState(
           db: db,
@@ -2049,10 +2930,15 @@ class $$ScenariosTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: (
-              {systemId = false, scenarioTagsRefs = false}) {
+              {systemId = false,
+              scenarioTagsRefs = false,
+              playSessionsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (scenarioTagsRefs) db.scenarioTags],
+              explicitlyWatchedTables: [
+                if (scenarioTagsRefs) db.scenarioTags,
+                if (playSessionsRefs) db.playSessions
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -2091,6 +2977,18 @@ class $$ScenariosTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.scenarioId == item.id),
+                        typedResults: items),
+                  if (playSessionsRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$ScenariosTableReferences
+                            ._playSessionsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ScenariosTableReferences(db, table, p0)
+                                .playSessionsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.scenarioId == item.id),
                         typedResults: items)
                 ];
               },
@@ -2109,7 +3007,8 @@ typedef $$ScenariosTableProcessedTableManager = ProcessedTableManager<
     $$ScenariosTableUpdateCompanionBuilder,
     (Scenario, $$ScenariosTableReferences),
     Scenario,
-    PrefetchHooks Function({bool systemId, bool scenarioTagsRefs})>;
+    PrefetchHooks Function(
+        {bool systemId, bool scenarioTagsRefs, bool playSessionsRefs})>;
 typedef $$ScenarioTagsTableCreateCompanionBuilder = ScenarioTagsCompanion
     Function({
   required int scenarioId,
@@ -2314,6 +3213,692 @@ typedef $$ScenarioTagsTableProcessedTableManager = ProcessedTableManager<
     (ScenarioTag, $$ScenarioTagsTableReferences),
     ScenarioTag,
     PrefetchHooks Function({bool scenarioId, bool tagId})>;
+typedef $$PlayersTableCreateCompanionBuilder = PlayersCompanion Function({
+  Value<int> id,
+  required String name,
+  Value<String?> note,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$PlayersTableUpdateCompanionBuilder = PlayersCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<String?> note,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+final class $$PlayersTableReferences
+    extends BaseReferences<_$AppDatabase, $PlayersTable, Player> {
+  $$PlayersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$PlaySessionPlayersTable, List<PlaySessionPlayer>>
+      _playSessionPlayersRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.playSessionPlayers,
+              aliasName: $_aliasNameGenerator(
+                  db.players.id, db.playSessionPlayers.playerId));
+
+  $$PlaySessionPlayersTableProcessedTableManager get playSessionPlayersRefs {
+    final manager =
+        $$PlaySessionPlayersTableTableManager($_db, $_db.playSessionPlayers)
+            .filter((f) => f.playerId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_playSessionPlayersRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$PlayersTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $PlayersTable> {
+  $$PlayersTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get note => $state.composableBuilder(
+      column: $state.table.note,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ComposableFilter playSessionPlayersRefs(
+      ComposableFilter Function($$PlaySessionPlayersTableFilterComposer f) f) {
+    final $$PlaySessionPlayersTableFilterComposer composer = $state
+        .composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $state.db.playSessionPlayers,
+            getReferencedColumn: (t) => t.playerId,
+            builder: (joinBuilder, parentComposers) =>
+                $$PlaySessionPlayersTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.playSessionPlayers,
+                    joinBuilder,
+                    parentComposers)));
+    return f(composer);
+  }
+}
+
+class $$PlayersTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $PlayersTable> {
+  $$PlayersTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get note => $state.composableBuilder(
+      column: $state.table.note,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+class $$PlayersTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PlayersTable,
+    Player,
+    $$PlayersTableFilterComposer,
+    $$PlayersTableOrderingComposer,
+    $$PlayersTableCreateCompanionBuilder,
+    $$PlayersTableUpdateCompanionBuilder,
+    (Player, $$PlayersTableReferences),
+    Player,
+    PrefetchHooks Function({bool playSessionPlayersRefs})> {
+  $$PlayersTableTableManager(_$AppDatabase db, $PlayersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$PlayersTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$PlayersTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              PlayersCompanion(
+            id: id,
+            name: name,
+            note: note,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            Value<String?> note = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+          }) =>
+              PlayersCompanion.insert(
+            id: id,
+            name: name,
+            note: note,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$PlayersTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({playSessionPlayersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (playSessionPlayersRefs) db.playSessionPlayers
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (playSessionPlayersRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$PlayersTableReferences
+                            ._playSessionPlayersRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$PlayersTableReferences(db, table, p0)
+                                .playSessionPlayersRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.playerId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$PlayersTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PlayersTable,
+    Player,
+    $$PlayersTableFilterComposer,
+    $$PlayersTableOrderingComposer,
+    $$PlayersTableCreateCompanionBuilder,
+    $$PlayersTableUpdateCompanionBuilder,
+    (Player, $$PlayersTableReferences),
+    Player,
+    PrefetchHooks Function({bool playSessionPlayersRefs})>;
+typedef $$PlaySessionsTableCreateCompanionBuilder = PlaySessionsCompanion
+    Function({
+  Value<int> id,
+  Value<int?> scenarioId,
+  required DateTime playedAt,
+  Value<String?> memo,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$PlaySessionsTableUpdateCompanionBuilder = PlaySessionsCompanion
+    Function({
+  Value<int> id,
+  Value<int?> scenarioId,
+  Value<DateTime> playedAt,
+  Value<String?> memo,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+final class $$PlaySessionsTableReferences
+    extends BaseReferences<_$AppDatabase, $PlaySessionsTable, PlaySession> {
+  $$PlaySessionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ScenariosTable _scenarioIdTable(_$AppDatabase db) =>
+      db.scenarios.createAlias(
+          $_aliasNameGenerator(db.playSessions.scenarioId, db.scenarios.id));
+
+  $$ScenariosTableProcessedTableManager? get scenarioId {
+    if ($_item.scenarioId == null) return null;
+    final manager = $$ScenariosTableTableManager($_db, $_db.scenarios)
+        .filter((f) => f.id($_item.scenarioId!));
+    final item = $_typedResult.readTableOrNull(_scenarioIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$PlaySessionPlayersTable, List<PlaySessionPlayer>>
+      _playSessionPlayersRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.playSessionPlayers,
+              aliasName: $_aliasNameGenerator(
+                  db.playSessions.id, db.playSessionPlayers.playSessionId));
+
+  $$PlaySessionPlayersTableProcessedTableManager get playSessionPlayersRefs {
+    final manager =
+        $$PlaySessionPlayersTableTableManager($_db, $_db.playSessionPlayers)
+            .filter((f) => f.playSessionId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_playSessionPlayersRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$PlaySessionsTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $PlaySessionsTable> {
+  $$PlaySessionsTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get playedAt => $state.composableBuilder(
+      column: $state.table.playedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get memo => $state.composableBuilder(
+      column: $state.table.memo,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$ScenariosTableFilterComposer get scenarioId {
+    final $$ScenariosTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.scenarioId,
+        referencedTable: $state.db.scenarios,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$ScenariosTableFilterComposer(ComposerState(
+                $state.db, $state.db.scenarios, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  ComposableFilter playSessionPlayersRefs(
+      ComposableFilter Function($$PlaySessionPlayersTableFilterComposer f) f) {
+    final $$PlaySessionPlayersTableFilterComposer composer = $state
+        .composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $state.db.playSessionPlayers,
+            getReferencedColumn: (t) => t.playSessionId,
+            builder: (joinBuilder, parentComposers) =>
+                $$PlaySessionPlayersTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.playSessionPlayers,
+                    joinBuilder,
+                    parentComposers)));
+    return f(composer);
+  }
+}
+
+class $$PlaySessionsTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $PlaySessionsTable> {
+  $$PlaySessionsTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get playedAt => $state.composableBuilder(
+      column: $state.table.playedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get memo => $state.composableBuilder(
+      column: $state.table.memo,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$ScenariosTableOrderingComposer get scenarioId {
+    final $$ScenariosTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.scenarioId,
+        referencedTable: $state.db.scenarios,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$ScenariosTableOrderingComposer(ComposerState(
+                $state.db, $state.db.scenarios, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+class $$PlaySessionsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PlaySessionsTable,
+    PlaySession,
+    $$PlaySessionsTableFilterComposer,
+    $$PlaySessionsTableOrderingComposer,
+    $$PlaySessionsTableCreateCompanionBuilder,
+    $$PlaySessionsTableUpdateCompanionBuilder,
+    (PlaySession, $$PlaySessionsTableReferences),
+    PlaySession,
+    PrefetchHooks Function({bool scenarioId, bool playSessionPlayersRefs})> {
+  $$PlaySessionsTableTableManager(_$AppDatabase db, $PlaySessionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$PlaySessionsTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$PlaySessionsTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> scenarioId = const Value.absent(),
+            Value<DateTime> playedAt = const Value.absent(),
+            Value<String?> memo = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              PlaySessionsCompanion(
+            id: id,
+            scenarioId: scenarioId,
+            playedAt: playedAt,
+            memo: memo,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int?> scenarioId = const Value.absent(),
+            required DateTime playedAt,
+            Value<String?> memo = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+          }) =>
+              PlaySessionsCompanion.insert(
+            id: id,
+            scenarioId: scenarioId,
+            playedAt: playedAt,
+            memo: memo,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$PlaySessionsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {scenarioId = false, playSessionPlayersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (playSessionPlayersRefs) db.playSessionPlayers
+              ],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (scenarioId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.scenarioId,
+                    referencedTable:
+                        $$PlaySessionsTableReferences._scenarioIdTable(db),
+                    referencedColumn:
+                        $$PlaySessionsTableReferences._scenarioIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (playSessionPlayersRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$PlaySessionsTableReferences
+                            ._playSessionPlayersRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$PlaySessionsTableReferences(db, table, p0)
+                                .playSessionPlayersRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.playSessionId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$PlaySessionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PlaySessionsTable,
+    PlaySession,
+    $$PlaySessionsTableFilterComposer,
+    $$PlaySessionsTableOrderingComposer,
+    $$PlaySessionsTableCreateCompanionBuilder,
+    $$PlaySessionsTableUpdateCompanionBuilder,
+    (PlaySession, $$PlaySessionsTableReferences),
+    PlaySession,
+    PrefetchHooks Function({bool scenarioId, bool playSessionPlayersRefs})>;
+typedef $$PlaySessionPlayersTableCreateCompanionBuilder
+    = PlaySessionPlayersCompanion Function({
+  required int playSessionId,
+  required int playerId,
+  Value<int> rowid,
+});
+typedef $$PlaySessionPlayersTableUpdateCompanionBuilder
+    = PlaySessionPlayersCompanion Function({
+  Value<int> playSessionId,
+  Value<int> playerId,
+  Value<int> rowid,
+});
+
+final class $$PlaySessionPlayersTableReferences extends BaseReferences<
+    _$AppDatabase, $PlaySessionPlayersTable, PlaySessionPlayer> {
+  $$PlaySessionPlayersTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $PlaySessionsTable _playSessionIdTable(_$AppDatabase db) =>
+      db.playSessions.createAlias($_aliasNameGenerator(
+          db.playSessionPlayers.playSessionId, db.playSessions.id));
+
+  $$PlaySessionsTableProcessedTableManager? get playSessionId {
+    if ($_item.playSessionId == null) return null;
+    final manager = $$PlaySessionsTableTableManager($_db, $_db.playSessions)
+        .filter((f) => f.id($_item.playSessionId!));
+    final item = $_typedResult.readTableOrNull(_playSessionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $PlayersTable _playerIdTable(_$AppDatabase db) =>
+      db.players.createAlias(
+          $_aliasNameGenerator(db.playSessionPlayers.playerId, db.players.id));
+
+  $$PlayersTableProcessedTableManager? get playerId {
+    if ($_item.playerId == null) return null;
+    final manager = $$PlayersTableTableManager($_db, $_db.players)
+        .filter((f) => f.id($_item.playerId!));
+    final item = $_typedResult.readTableOrNull(_playerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$PlaySessionPlayersTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $PlaySessionPlayersTable> {
+  $$PlaySessionPlayersTableFilterComposer(super.$state);
+  $$PlaySessionsTableFilterComposer get playSessionId {
+    final $$PlaySessionsTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.playSessionId,
+        referencedTable: $state.db.playSessions,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$PlaySessionsTableFilterComposer(ComposerState($state.db,
+                $state.db.playSessions, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  $$PlayersTableFilterComposer get playerId {
+    final $$PlayersTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.playerId,
+        referencedTable: $state.db.players,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) => $$PlayersTableFilterComposer(
+            ComposerState(
+                $state.db, $state.db.players, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+class $$PlaySessionPlayersTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $PlaySessionPlayersTable> {
+  $$PlaySessionPlayersTableOrderingComposer(super.$state);
+  $$PlaySessionsTableOrderingComposer get playSessionId {
+    final $$PlaySessionsTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.playSessionId,
+        referencedTable: $state.db.playSessions,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$PlaySessionsTableOrderingComposer(ComposerState($state.db,
+                $state.db.playSessions, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  $$PlayersTableOrderingComposer get playerId {
+    final $$PlayersTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.playerId,
+        referencedTable: $state.db.players,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$PlayersTableOrderingComposer(ComposerState(
+                $state.db, $state.db.players, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+class $$PlaySessionPlayersTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PlaySessionPlayersTable,
+    PlaySessionPlayer,
+    $$PlaySessionPlayersTableFilterComposer,
+    $$PlaySessionPlayersTableOrderingComposer,
+    $$PlaySessionPlayersTableCreateCompanionBuilder,
+    $$PlaySessionPlayersTableUpdateCompanionBuilder,
+    (PlaySessionPlayer, $$PlaySessionPlayersTableReferences),
+    PlaySessionPlayer,
+    PrefetchHooks Function({bool playSessionId, bool playerId})> {
+  $$PlaySessionPlayersTableTableManager(
+      _$AppDatabase db, $PlaySessionPlayersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$PlaySessionPlayersTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$PlaySessionPlayersTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> playSessionId = const Value.absent(),
+            Value<int> playerId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PlaySessionPlayersCompanion(
+            playSessionId: playSessionId,
+            playerId: playerId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int playSessionId,
+            required int playerId,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PlaySessionPlayersCompanion.insert(
+            playSessionId: playSessionId,
+            playerId: playerId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$PlaySessionPlayersTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({playSessionId = false, playerId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (playSessionId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.playSessionId,
+                    referencedTable: $$PlaySessionPlayersTableReferences
+                        ._playSessionIdTable(db),
+                    referencedColumn: $$PlaySessionPlayersTableReferences
+                        ._playSessionIdTable(db)
+                        .id,
+                  ) as T;
+                }
+                if (playerId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.playerId,
+                    referencedTable:
+                        $$PlaySessionPlayersTableReferences._playerIdTable(db),
+                    referencedColumn: $$PlaySessionPlayersTableReferences
+                        ._playerIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$PlaySessionPlayersTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PlaySessionPlayersTable,
+    PlaySessionPlayer,
+    $$PlaySessionPlayersTableFilterComposer,
+    $$PlaySessionPlayersTableOrderingComposer,
+    $$PlaySessionPlayersTableCreateCompanionBuilder,
+    $$PlaySessionPlayersTableUpdateCompanionBuilder,
+    (PlaySessionPlayer, $$PlaySessionPlayersTableReferences),
+    PlaySessionPlayer,
+    PrefetchHooks Function({bool playSessionId, bool playerId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2325,4 +3910,10 @@ class $AppDatabaseManager {
       $$ScenariosTableTableManager(_db, _db.scenarios);
   $$ScenarioTagsTableTableManager get scenarioTags =>
       $$ScenarioTagsTableTableManager(_db, _db.scenarioTags);
+  $$PlayersTableTableManager get players =>
+      $$PlayersTableTableManager(_db, _db.players);
+  $$PlaySessionsTableTableManager get playSessions =>
+      $$PlaySessionsTableTableManager(_db, _db.playSessions);
+  $$PlaySessionPlayersTableTableManager get playSessionPlayers =>
+      $$PlaySessionPlayersTableTableManager(_db, _db.playSessionPlayers);
 }
