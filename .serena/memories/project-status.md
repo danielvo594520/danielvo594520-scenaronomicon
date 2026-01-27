@@ -2,9 +2,10 @@
 
 ## 現在の状態
 - **Phase 1 (MVP)**: 完了・マージ済み（PR #1）
-- **Phase 2 (プレイ記録・プレイヤー管理)**: 完了・PR作成中
-- **ブランチ**: `feature/phase2-play-records`
-- **次のタスク**: Phase 3（検索・フィルタ・ソート）
+- **Phase 2 (プレイ記録・プレイヤー管理)**: 完了・マージ済み（PR #2）
+- **Phase 3 (検索・フィルタ・ソート)**: 完了・PR作成中
+- **ブランチ**: `feature/phase3-search-filter`
+- **次のタスク**: Phase 4（画像対応・UI改善）
 
 ## 技術的な注意事項
 
@@ -58,5 +59,24 @@
 - scenario_detail_screen.dart: プレイ記録セクション実装
 - app_router.dart: Tab 1, 2 のルート実装
 
-### Phase 3 のドキュメント
-- `docs/phases/PHASE3_SEARCH_FILTER.md` に詳細仕様あり
+### Phase 3 で追加したファイル
+- モデル: scenario_filter.dart（ScenarioFilterクラス、copyWith付き）
+- Enum: scenario_sort.dart（ScenarioSort: 7種のソートオプション）
+- ユーティリティ: sort_preferences.dart（SharedPreferencesでソート永続化）, debouncer.dart（300msデバウンス）
+- プロバイダー: scenario_filter_provider.dart（scenarioFilterProvider, scenarioSortProvider, filteredScenarioListProvider）
+- ウィジェット: filter_bottom_sheet.dart（タグ/システム/状態フィルター）, active_filters_row.dart（適用中フィルターチップ）
+
+### Phase 3 で変更したファイル
+- scenario_repository.dart: searchAndFilter(), getAllPlayCounts(), _filterByTags() 追加
+- scenario_list_screen.dart: ConsumerStatefulWidget化、検索バー・フィルター・ソート統合
+- README.md: Phase 3を完了に更新
+
+### Phase 3 技術的注意事項
+- タグフィルタ（AND/OR）はDart側で処理（SQLでは複雑すぎるため）
+- プレイ回数ソートは全プレイ記録からMap<scenarioId, count>を事前取得
+- ソート設定はSharedPreferencesで永続化
+- 検索入力は300msデバウンスでパフォーマンス確保
+- フィルター適用中はBadgeアイコンで視覚的に表示
+
+### Phase 4 のドキュメント
+- `docs/phases/PHASE4_POLISH.md` に詳細仕様あり
