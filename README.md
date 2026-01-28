@@ -1,5 +1,7 @@
 # Scenaronimicon
 
+[![GitHub Release](https://img.shields.io/github/v/release/danielvo594520/danielvo594520-scenaronomicon?label=最新リリース)](https://github.com/danielvo594520/danielvo594520-scenaronomicon/releases)
+
 TRPGのゲームマスター向けシナリオ管理Androidアプリ。
 
 シナリオの管理、プレイ記録、プレイヤー情報をローカルで管理します。
@@ -45,3 +47,7 @@ fvm flutter build apk --debug
 | Phase 4 | 画像対応、UI改善 | 完了 |
 
 詳細は [docs/](docs/) を参照。
+
+## リリース履歴
+
+最新のリリースとAPKダウンロードは [Releases ページ](https://github.com/danielvo594520/danielvo594520-scenaronomicon/releases) を参照してください。
