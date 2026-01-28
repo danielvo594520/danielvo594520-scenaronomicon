@@ -691,8 +691,45 @@ android {
 
 ---
 
+## 15. リリース管理
+
+### 15.1 バージョニング
+
+セマンティックバージョニング（`MAJOR.MINOR.PATCH`）を採用：
+
+| 要素 | 意味 | 例 |
+|------|------|-----|
+| MAJOR | 破壊的変更 | 2.0.0 |
+| MINOR | 新機能追加 | 1.1.0 |
+| PATCH | バグ修正 | 1.0.1 |
+
+バージョンは2箇所で管理：
+- `pubspec.yaml` — `version: X.Y.Z+N`（`+N` はAndroidビルド番号、リリース毎に自動インクリメント）
+- `lib/core/constants/app_constants.dart` — `appVersion`（アプリ内表示用）
+
+### 15.2 リリースワークフロー
+
+GitHub Actionsの手動トリガー（`workflow_dispatch`）で以下を自動実行：
+
+1. バージョン入力（例: `1.1.0`）
+2. `pubspec.yaml` と `app_constants.dart` のバージョンを自動更新・コミット
+3. リリースノートをコミット履歴からカテゴリ別に自動生成
+4. リリースAPKをビルド（オプション）
+5. GitHub Releaseを作成、タグ付け、APK添付
+
+**実行手順:** GitHub > Actions > Create Release > Run workflow > バージョン入力
+
+### 15.3 APK配布
+
+- リリースAPKは GitHub Releases の Assets に添付
+- ファイル名: `scenaronimicon-vX.Y.Z.apk`
+- ダウンロード: リポジトリの Releases ページから取得可能
+
+---
+
 ## 改訂履歴
 
 | バージョン | 日付 | 内容 |
 |------------|------|------|
 | 1.0 | 2025-01-27 | 初版作成 |
+| 1.1 | 2025-01-28 | 全フェーズ完了、リリース管理セクション追加 |
