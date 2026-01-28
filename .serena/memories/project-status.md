@@ -4,9 +4,18 @@
 - **Phase 1 (MVP)**: 完了・マージ済み（PR #1）
 - **Phase 2 (プレイ記録・プレイヤー管理)**: 完了・マージ済み（PR #2）
 - **Phase 3 (検索・フィルタ・ソート)**: 完了・マージ済み（PR #3）
-- **Phase 4 (画像対応・UI改善)**: 完了・PR作成中
-- **ブランチ**: `feature/phase4-polish`
-- **全フェーズ完了**: v1.0.0リリース準備
+- **Phase 4 (画像対応・UI改善)**: 完了・マージ済み（PR #4）
+- **全フェーズ完了**: v1.0.0 リリース済み（2025-01-28）
+- **現在のバージョン**: 1.0.1（GitHub Actions による自動更新）
+
+## CI/CD
+- **GitHub Actions**: `.github/workflows/create-release.yml`
+  - 手動トリガー（workflow_dispatch）でリリース作成
+  - バージョン自動更新（pubspec.yaml + app_constants.dart）
+  - ビルド番号自動インクリメント
+  - リリースノートをカテゴリ別自動生成（feat/fix/docs/その他）
+  - APKビルド・GitHub Releaseへ添付
+  - **実行手順**: Actions > Create Release > Run workflow > バージョン入力
 
 ## 技術的な注意事項
 

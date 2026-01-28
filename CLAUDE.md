@@ -258,6 +258,27 @@ class Scenarios extends Table {
 2. 該当フェーズの全画面・全機能を手動で動作確認
 3. 問題があればその場で修正してから完了とする
 
+## リリース
+
+### リリース作成（GitHub Actions）
+
+バージョン指定でタグ・GitHub Release・APKを自動作成：
+
+1. GitHub > **Actions** > **Create Release** > **Run workflow**
+2. バージョンを入力（例: `1.1.0`）
+3. 自動で以下が実行される：
+   - `pubspec.yaml` と `app_constants.dart` のバージョン更新＆コミット
+   - ビルド番号（`+N`）の自動インクリメント
+   - リリースノート自動生成（カテゴリ別）
+   - APKビルド＆GitHub Releaseに添付
+
+### バージョン管理
+
+バージョンは以下の2箇所で管理（リリースワークフローが自動更新）：
+
+- `pubspec.yaml` — `version: X.Y.Z+N`
+- `lib/core/constants/app_constants.dart` — `appVersion`
+
 ## 重要な注意点
 
 ### fvm 必須
