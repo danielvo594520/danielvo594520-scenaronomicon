@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +8,7 @@ import '../../../domain/enums/scenario_sort.dart';
 import '../../providers/scenario_filter_provider.dart';
 import '../../providers/scenario_provider.dart';
 import '../../widgets/active_filters_row.dart';
+import '../../widgets/animated_list_item.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/filter_bottom_sheet.dart';
 import '../../widgets/scenario_card.dart';
@@ -111,6 +113,13 @@ class _ScenarioListScreenState extends ConsumerState<ScenarioListScreen> {
     );
   }
 
+  Future<void> _onRefresh() async {
+    ref.invalidate(scenarioListProvider);
+    ref.invalidate(filteredScenarioListProvider);
+    // providerの再読み込みを待つ
+    await ref.read(filteredScenarioListProvider.future);
+  }
+
   @override
   Widget build(BuildContext context) {
     final scenariosAsync = ref.watch(filteredScenarioListProvider);
@@ -158,9 +167,15 @@ class _ScenarioListScreenState extends ConsumerState<ScenarioListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/scenarios/new'),
-        child: const Icon(Icons.add),
+      floatingActionButton: Semantics(
+        label: 'シナリオを追加',
+        child: FloatingActionButton(
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            context.push('/scenarios/new');
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
       body: Column(
         children: [
@@ -176,12 +191,17 @@ class _ScenarioListScreenState extends ConsumerState<ScenarioListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('エラー: $error'),
+                    Icon(Icons.error_outline,
+                        size: 48, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text('読み込みに失敗しました',
+                        style: TextStyle(color: Colors.grey[600])),
                     const SizedBox(height: 8),
-                    ElevatedButton(
+                    OutlinedButton.icon(
                       onPressed: () =>
                           ref.invalidate(filteredScenarioListProvider),
-                      child: const Text('再読み込み'),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('再読み込み'),
                     ),
                   ],
                 ),
@@ -247,17 +267,26 @@ class _ScenarioListScreenState extends ConsumerState<ScenarioListScreen> {
                       ),
                     ),
                     Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 80),
-                        itemCount: scenarios.length,
-                        itemBuilder: (context, index) {
-                          final scenario = scenarios[index];
-                          return ScenarioCard(
-                            scenario: scenario,
-                            onTap: () =>
-                                context.push('/scenarios/${scenario.id}'),
-                          );
-                        },
+                      child: RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 80),
+                          itemCount: scenarios.length,
+                          itemBuilder: (context, index) {
+                            final scenario = scenarios[index];
+                            return AnimatedListItem(
+                              index: index,
+                              child: ScenarioCard(
+                                scenario: scenario,
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  context.push(
+                                      '/scenarios/${scenario.id}');
+                                },
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],

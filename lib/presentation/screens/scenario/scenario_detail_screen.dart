@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/utils/snackbar_utils.dart';
 import '../../providers/play_session_provider.dart';
 import '../../providers/scenario_provider.dart';
 import '../../widgets/delete_confirm_dialog.dart';
+import '../../widgets/scenario_thumbnail.dart';
 import '../../widgets/status_chip.dart';
 import '../../widgets/tag_chip.dart';
 
@@ -26,7 +29,23 @@ class ScenarioDetailScreen extends ConsumerWidget {
       ),
       error: (error, _) => Scaffold(
         appBar: AppBar(),
-        body: Center(child: Text('エラー: $error')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text('読み込みに失敗しました',
+                  style: TextStyle(color: Colors.grey[600])),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () => ref.invalidate(scenarioDetailProvider(id)),
+                icon: const Icon(Icons.refresh),
+                label: const Text('再読み込み'),
+              ),
+            ],
+          ),
+        ),
       ),
       data: (scenario) => Scaffold(
         appBar: AppBar(
@@ -34,19 +53,30 @@ class ScenarioDetailScreen extends ConsumerWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.edit),
+              tooltip: 'シナリオを編集',
               onPressed: () =>
                   context.push('/scenarios/${scenario.id}/edit'),
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'シナリオを削除',
               onPressed: () async {
                 final confirmed = await DeleteConfirmDialog.show(
                     context, scenario.title);
                 if (confirmed && context.mounted) {
-                  await ref
-                      .read(scenarioListProvider.notifier)
-                      .deleteScenario(scenario.id);
-                  if (context.mounted) context.pop();
+                  try {
+                    await ref
+                        .read(scenarioListProvider.notifier)
+                        .deleteScenario(scenario.id);
+                    if (context.mounted) {
+                      showSuccessSnackBar(context, 'シナリオを削除しました');
+                      context.pop();
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      showErrorSnackBar(context, '削除に失敗しました: $e');
+                    }
+                  }
                 }
               },
             ),
@@ -57,15 +87,12 @@ class ScenarioDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // サムネイルプレースホルダー
-              Container(
+              // サムネイル画像
+              ScenarioThumbnail(
+                imagePath: scenario.thumbnailPath,
                 width: double.infinity,
                 height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.image, size: 64, color: Colors.grey[400]),
+                borderRadius: 12,
               ),
               const SizedBox(height: 16),
 
@@ -135,7 +162,10 @@ class ScenarioDetailScreen extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  onTap: () => _launchUrl(scenario.purchaseUrl!),
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    _launchUrl(scenario.purchaseUrl!);
+                  },
                 ),
               ],
 

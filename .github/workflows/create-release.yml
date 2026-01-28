@@ -1,0 +1,111 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'バージョン（例: 1.0.0）'
+        required: true
+        type: string
+      build_apk:
+        description: 'APKをビルドしてリリースに添付する'
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        description: 'プレリリースとしてマークする'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::バージョン形式が不正です。X.Y.Z 形式で入力してください（例: 1.0.0）"
+            exit 1
+          fi
+          echo "VERSION=v${VERSION}" >> $GITHUB_ENV
+          echo "VERSION_NUMBER=${VERSION}" >> $GITHUB_ENV
+
+      - name: Check tag does not exist
+        run: |
+          if git rev-parse "${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "::error::タグ ${{ env.VERSION }} は既に存在します"
+            exit 1
+          fi
+
+      - name: Setup Flutter
+        if: ${{ github.event.inputs.build_apk == 'true' }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        if: ${{ github.event.inputs.build_apk == 'true' }}
+        run: flutter pub get
+
+      - name: Run code generation
+        if: ${{ github.event.inputs.build_apk == 'true' }}
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build APK
+        if: ${{ github.event.inputs.build_apk == 'true' }}
+        run: flutter build apk --release
+
+      - name: Rename APK
+        if: ${{ github.event.inputs.build_apk == 'true' }}
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/scenaronimicon-${{ env.VERSION }}.apk
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # 直前のタグからの変更履歴を取得
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # タグがない場合は全コミットログ
+            COMMITS=$(git log --oneline --no-merges | head -50)
+          else
+            COMMITS=$(git log --oneline --no-merges "${PREVIOUS_TAG}..HEAD" | head -50)
+          fi
+
+          # リリースノートを生成
+          {
+            echo "notes<<EOF"
+            echo "## Scenaronimicon ${{ env.VERSION }}"
+            echo ""
+            echo "### 変更履歴"
+            echo ""
+            echo "$COMMITS" | while IFS= read -r line; do
+              echo "- ${line}"
+            done
+            echo ""
+            echo "---"
+            echo "Built from commit: ${{ github.sha }}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create tag and release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          body: ${{ steps.release_notes.outputs.notes }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          files: |
+            ${{ github.event.inputs.build_apk == 'true' && format('build/app/outputs/flutter-apk/scenaronimicon-{0}.apk', env.VERSION) || '' }}
+          generate_release_notes: false

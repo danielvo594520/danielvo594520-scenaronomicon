@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/services/image_storage_service.dart';
+import '../../../core/utils/snackbar_utils.dart';
 import '../../../domain/enums/scenario_status.dart';
 import '../../providers/scenario_provider.dart';
 import '../../providers/system_provider.dart';
 import '../../providers/tag_provider.dart';
+import '../../widgets/image_selector.dart';
 
 class ScenarioFormScreen extends ConsumerStatefulWidget {
   const ScenarioFormScreen({super.key, this.scenarioId});
@@ -30,6 +36,12 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
   Set<int> _selectedTagIds = {};
   bool _isInitialized = false;
   bool _isSaving = false;
+
+  // 画像関連
+  String? _currentImagePath; // 保存済みパス or 一時パス
+  File? _selectedImageFile; // 新しく選択された画像ファイル
+  String? _originalImagePath; // 編集時の元画像パス（削除判定用）
+  bool _imageRemoved = false; // 画像を明示的に削除したか
 
   bool get _isEdit => widget.scenarioId != null;
 
@@ -60,6 +72,8 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
       _purchaseUrlController.text = scenario.purchaseUrl ?? '';
       _memoController.text = scenario.memo ?? '';
       _selectedTagIds = scenario.tags.map((t) => t.id).toSet();
+      _currentImagePath = scenario.thumbnailPath;
+      _originalImagePath = scenario.thumbnailPath;
       _isInitialized = true;
       if (mounted) setState(() {});
     });
@@ -86,6 +100,27 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // サムネイル画像
+              ImageSelector(
+                currentImagePath: _currentImagePath,
+                onImageSelected: (file) {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    _selectedImageFile = file;
+                    _currentImagePath = file.path;
+                    _imageRemoved = false;
+                  });
+                },
+                onImageRemoved: () {
+                  setState(() {
+                    _selectedImageFile = null;
+                    _currentImagePath = null;
+                    _imageRemoved = true;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
               // タイトル
               TextFormField(
                 controller: _titleController,
@@ -299,9 +334,7 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
     final minPlayers = int.parse(_minPlayersController.text);
     final maxPlayers = int.parse(_maxPlayersController.text);
     if (maxPlayers < minPlayers) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('最大人数は最小人数以上にしてください')),
-      );
+      showErrorSnackBar(context, '最大人数は最小人数以上にしてください');
       return;
     }
 
@@ -319,6 +352,18 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
           ? null
           : _memoController.text.trim();
 
+      // 画像の保存処理
+      String? thumbnailPath;
+      if (_selectedImageFile != null) {
+        // 新しい画像が選択された場合、アプリ専用ディレクトリに保存
+        final storageService = ImageStorageService();
+        thumbnailPath = await storageService.saveImage(_selectedImageFile!);
+      } else if (!_imageRemoved) {
+        // 画像が削除されておらず、新しい画像も選択されていない場合は元のパスを維持
+        thumbnailPath = _originalImagePath;
+      }
+      // _imageRemoved == true && _selectedImageFile == null の場合は thumbnailPath = null
+
       if (_isEdit) {
         await ref.read(scenarioListProvider.notifier).updateScenario(
               id: widget.scenarioId!,
@@ -329,6 +374,8 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
               playTimeMinutes: playTime,
               status: _selectedStatus,
               purchaseUrl: purchaseUrl,
+              thumbnailPath: thumbnailPath,
+              oldThumbnailPath: _originalImagePath,
               memo: memo,
               tagIds: _selectedTagIds.toList(),
             );
@@ -343,23 +390,20 @@ class _ScenarioFormScreenState extends ConsumerState<ScenarioFormScreen> {
               playTimeMinutes: playTime,
               status: _selectedStatus,
               purchaseUrl: purchaseUrl,
+              thumbnailPath: thumbnailPath,
               memo: memo,
               tagIds: _selectedTagIds.toList(),
             );
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(_isEdit ? 'シナリオを更新しました' : 'シナリオを追加しました')),
-        );
+        showSuccessSnackBar(
+            context, _isEdit ? 'シナリオを更新しました' : 'シナリオを追加しました');
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('エラー: $e')),
-        );
+        showErrorSnackBar(context, 'エラー: $e');
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

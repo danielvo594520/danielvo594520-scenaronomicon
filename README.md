@@ -42,6 +42,6 @@ fvm flutter build apk --debug
 | Phase 1 | シナリオCRUD、システム/タグ管理 | 完了 |
 | Phase 2 | プレイ記録、プレイヤー管理 | 完了 |
 | Phase 3 | 検索・フィルタ・ソート | 完了 |
-| Phase 4 | 画像対応、UI改善 | 未着手 |
+| Phase 4 | 画像対応、UI改善 | 完了 |
 
 詳細は [docs/](docs/) を参照。

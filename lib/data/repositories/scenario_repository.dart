@@ -86,6 +86,7 @@ class ScenarioRepository {
     int? playTimeMinutes,
     required ScenarioStatus status,
     String? purchaseUrl,
+    String? thumbnailPath,
     String? memo,
     List<int> tagIds = const [],
   }) async {
@@ -100,6 +101,7 @@ class ScenarioRepository {
               playTimeMinutes: Value(playTimeMinutes),
               status: status.name,
               purchaseUrl: Value(purchaseUrl),
+              thumbnailPath: Value(thumbnailPath),
               memo: Value(memo),
               createdAt: now,
               updatedAt: now,
@@ -130,6 +132,7 @@ class ScenarioRepository {
     int? playTimeMinutes,
     required ScenarioStatus status,
     String? purchaseUrl,
+    String? thumbnailPath,
     String? memo,
     List<int> tagIds = const [],
   }) async {
@@ -144,6 +147,7 @@ class ScenarioRepository {
           playTimeMinutes: Value(playTimeMinutes),
           status: Value(status.name),
           purchaseUrl: Value(purchaseUrl),
+          thumbnailPath: Value(thumbnailPath),
           memo: Value(memo),
           updatedAt: Value(now),
         ),
@@ -166,8 +170,15 @@ class ScenarioRepository {
   }
 
   /// シナリオ削除（タグ割当削除 + プレイ記録のscenarioIdをnullに設定）
-  Future<void> delete(int id) async {
-    await _db.transaction(() async {
+  /// 削除されたシナリオのthumbnailPathを返す（画像ファイル削除に使用）
+  Future<String?> delete(int id) async {
+    return _db.transaction(() async {
+      // 削除前にthumbnailPathを取得
+      final scenario = await (_db.select(_db.scenarios)
+            ..where((t) => t.id.equals(id)))
+          .getSingle();
+      final thumbnailPath = scenario.thumbnailPath;
+
       // タグ割当を削除
       await (_db.delete(_db.scenarioTags)
             ..where((t) => t.scenarioId.equals(id)))
@@ -178,6 +189,8 @@ class ScenarioRepository {
           .write(const PlaySessionsCompanion(scenarioId: Value(null)));
       // シナリオ削除
       await (_db.delete(_db.scenarios)..where((t) => t.id.equals(id))).go();
+
+      return thumbnailPath;
     });
   }
 

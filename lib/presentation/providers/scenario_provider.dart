@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/services/image_storage_service.dart';
 import '../../domain/enums/scenario_status.dart';
 import '../../domain/models/scenario_with_tags.dart';
 import 'database_provider.dart';
@@ -23,6 +24,7 @@ class ScenarioListNotifier extends AsyncNotifier<List<ScenarioWithTags>> {
     int? playTimeMinutes,
     required ScenarioStatus status,
     String? purchaseUrl,
+    String? thumbnailPath,
     String? memo,
     List<int> tagIds = const [],
   }) async {
@@ -34,6 +36,7 @@ class ScenarioListNotifier extends AsyncNotifier<List<ScenarioWithTags>> {
           playTimeMinutes: playTimeMinutes,
           status: status,
           purchaseUrl: purchaseUrl,
+          thumbnailPath: thumbnailPath,
           memo: memo,
           tagIds: tagIds,
         );
@@ -49,6 +52,8 @@ class ScenarioListNotifier extends AsyncNotifier<List<ScenarioWithTags>> {
     int? playTimeMinutes,
     required ScenarioStatus status,
     String? purchaseUrl,
+    String? thumbnailPath,
+    String? oldThumbnailPath,
     String? memo,
     List<int> tagIds = const [],
   }) async {
@@ -61,14 +66,24 @@ class ScenarioListNotifier extends AsyncNotifier<List<ScenarioWithTags>> {
           playTimeMinutes: playTimeMinutes,
           status: status,
           purchaseUrl: purchaseUrl,
+          thumbnailPath: thumbnailPath,
           memo: memo,
           tagIds: tagIds,
         );
+    // 古い画像ファイルを削除
+    if (oldThumbnailPath != null && oldThumbnailPath != thumbnailPath) {
+      await ImageStorageService().deleteImage(oldThumbnailPath);
+    }
     ref.invalidateSelf();
   }
 
   Future<void> deleteScenario(int id) async {
-    await ref.read(scenarioRepositoryProvider).delete(id);
+    final deletedThumbnailPath =
+        await ref.read(scenarioRepositoryProvider).delete(id);
+    // 画像ファイルを削除
+    if (deletedThumbnailPath != null) {
+      await ImageStorageService().deleteImage(deletedThumbnailPath);
+    }
     ref.invalidateSelf();
   }
 }

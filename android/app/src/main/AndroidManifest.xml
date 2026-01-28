@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Android 13+ (API 33+) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- カメラから撮影する場合 -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:label="scenaronimicon"
         android:name="${applicationName}"
