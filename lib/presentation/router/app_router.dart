@@ -16,6 +16,20 @@ import '../screens/settings/tag_management_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// フェードトランジション付きのページを生成
+CustomTransitionPage<void> _fadeTransitionPage({
+  required Widget child,
+  required GoRouterState state,
+}) {
+  return CustomTransitionPage(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
+  );
+}
+
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/scenarios',
@@ -35,21 +49,30 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'new',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => const ScenarioFormScreen(),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: const ScenarioFormScreen(),
+                  ),
                 ),
                 GoRoute(
                   path: ':id',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => ScenarioDetailScreen(
-                    id: int.parse(state.pathParameters['id']!),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: ScenarioDetailScreen(
+                      id: int.parse(state.pathParameters['id']!),
+                    ),
                   ),
                   routes: [
                     GoRoute(
                       path: 'edit',
                       parentNavigatorKey: _rootNavigatorKey,
-                      builder: (context, state) => ScenarioFormScreen(
-                        scenarioId:
-                            int.parse(state.pathParameters['id']!),
+                      pageBuilder: (context, state) => _fadeTransitionPage(
+                        state: state,
+                        child: ScenarioFormScreen(
+                          scenarioId:
+                              int.parse(state.pathParameters['id']!),
+                        ),
                       ),
                     ),
                   ],
@@ -69,22 +92,28 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'new',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) {
+                  pageBuilder: (context, state) {
                     final scenarioIdStr =
                         state.uri.queryParameters['scenarioId'];
-                    return PlaySessionFormScreen(
-                      preselectedScenarioId: scenarioIdStr != null
-                          ? int.tryParse(scenarioIdStr)
-                          : null,
+                    return _fadeTransitionPage(
+                      state: state,
+                      child: PlaySessionFormScreen(
+                        preselectedScenarioId: scenarioIdStr != null
+                            ? int.tryParse(scenarioIdStr)
+                            : null,
+                      ),
                     );
                   },
                 ),
                 GoRoute(
                   path: ':id/edit',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => PlaySessionFormScreen(
-                    sessionId:
-                        int.parse(state.pathParameters['id']!),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: PlaySessionFormScreen(
+                      sessionId:
+                          int.parse(state.pathParameters['id']!),
+                    ),
                   ),
                 ),
               ],
@@ -101,22 +130,30 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'new',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) =>
-                      const PlayerFormScreen(),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: const PlayerFormScreen(),
+                  ),
                 ),
                 GoRoute(
                   path: ':id',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => PlayerDetailScreen(
-                    id: int.parse(state.pathParameters['id']!),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: PlayerDetailScreen(
+                      id: int.parse(state.pathParameters['id']!),
+                    ),
                   ),
                   routes: [
                     GoRoute(
                       path: 'edit',
                       parentNavigatorKey: _rootNavigatorKey,
-                      builder: (context, state) => PlayerFormScreen(
-                        playerId:
-                            int.parse(state.pathParameters['id']!),
+                      pageBuilder: (context, state) => _fadeTransitionPage(
+                        state: state,
+                        child: PlayerFormScreen(
+                          playerId:
+                              int.parse(state.pathParameters['id']!),
+                        ),
                       ),
                     ),
                   ],
@@ -135,14 +172,18 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'systems',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) =>
-                      const SystemManagementScreen(),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: const SystemManagementScreen(),
+                  ),
                 ),
                 GoRoute(
                   path: 'tags',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) =>
-                      const TagManagementScreen(),
+                  pageBuilder: (context, state) => _fadeTransitionPage(
+                    state: state,
+                    child: const TagManagementScreen(),
+                  ),
                 ),
               ],
             ),

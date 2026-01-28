@@ -3,9 +3,10 @@
 ## 現在の状態
 - **Phase 1 (MVP)**: 完了・マージ済み（PR #1）
 - **Phase 2 (プレイ記録・プレイヤー管理)**: 完了・マージ済み（PR #2）
-- **Phase 3 (検索・フィルタ・ソート)**: 完了・PR作成中
-- **ブランチ**: `feature/phase3-search-filter`
-- **次のタスク**: Phase 4（画像対応・UI改善）
+- **Phase 3 (検索・フィルタ・ソート)**: 完了・マージ済み（PR #3）
+- **Phase 4 (画像対応・UI改善)**: 完了・PR作成中
+- **ブランチ**: `feature/phase4-polish`
+- **全フェーズ完了**: v1.0.0リリース準備
 
 ## 技術的な注意事項
 
@@ -78,5 +79,24 @@
 - 検索入力は300msデバウンスでパフォーマンス確保
 - フィルター適用中はBadgeアイコンで視覚的に表示
 
-### Phase 4 のドキュメント
-- `docs/phases/PHASE4_POLISH.md` に詳細仕様あり
+### Phase 4 で追加したファイル
+- サービス: image_picker_service.dart, image_storage_service.dart
+- ユーティリティ: snackbar_utils.dart
+- ウィジェット: scenario_thumbnail.dart, image_selector.dart, animated_list_item.dart
+
+### Phase 4 で変更したファイル
+- AndroidManifest.xml: READ_MEDIA_IMAGES, CAMERA パーミッション追加
+- pubspec.yaml: image_picker, uuid パッケージ追加
+- scenario_repository.dart: create/update に thumbnailPath 追加、delete で画像パス返却
+- scenario_provider.dart: thumbnailPath 対応、画像ファイル削除処理追加
+- scenario_form_screen.dart: ImageSelector 統合、画像保存・削除ロジック
+- scenario_card.dart: ScenarioThumbnail 表示（横レイアウト化）
+- scenario_detail_screen.dart: ScenarioThumbnail 表示、エラー時リトライUI、SnackBar改善
+- scenario_list_screen.dart: Pull to Refresh、AnimatedListItem、HapticFeedback、Semantics
+- app_router.dart: 全画面にフェードトランジション追加
+
+### Phase 4 技術的注意事項
+- 画像は1024x1024以下、JPEG 85%で圧縮（image_picker側で処理）
+- ファイル名はUUID v4で生成、アプリ専用ディレクトリ（getApplicationDocumentsDirectory/images/）に保存
+- シナリオ削除時にthumbnailPathのファイルも物理削除
+- 画像更新時に古い画像ファイルも削除（replaceパターン）
