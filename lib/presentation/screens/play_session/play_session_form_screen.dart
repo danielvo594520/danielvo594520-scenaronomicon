@@ -211,6 +211,7 @@ class _PlaySessionFormScreenState
         ref.invalidate(playerSessionCountProvider(pair.playerId));
         ref.invalidate(playerPlayedScenariosProvider(pair.playerId));
         // キャラクターの統計も更新
+        ref.invalidate(characterListProvider(pair.playerId));
         if (pair.characterId != null) {
           ref.invalidate(characterSessionCountProvider(pair.characterId!));
           ref.invalidate(characterPlayedSessionsProvider(pair.characterId!));
