@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/play_session_provider.dart';
-import '../../widgets/delete_confirm_dialog.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/play_session_card.dart';
 
@@ -50,57 +49,12 @@ class PlaySessionListScreen extends ConsumerWidget {
               final session = sessions[index];
               return PlaySessionCard(
                 session: session,
-                onTap: () => _showSessionActions(
-                    context, ref, session.id),
+                onTap: () => context.push('/sessions/${session.id}'),
               );
             },
           );
         },
       ),
-    );
-  }
-
-  Future<void> _showSessionActions(
-    BuildContext context,
-    WidgetRef ref,
-    int sessionId,
-  ) async {
-    await showModalBottomSheet(
-      context: context,
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('編集'),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  context.push('/sessions/$sessionId/edit');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('削除',
-                    style: TextStyle(color: Colors.red)),
-                onTap: () async {
-                  Navigator.of(sheetContext).pop();
-                  final confirmed = await DeleteConfirmDialog.show(
-                    context,
-                    'このプレイ記録',
-                  );
-                  if (confirmed && context.mounted) {
-                    await ref
-                        .read(playSessionListProvider.notifier)
-                        .deleteSession(sessionId);
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -54,6 +54,11 @@ class AppDatabase extends _$AppDatabase {
           if (from < 4) {
             await customStatement(
               'ALTER TABLE players ADD COLUMN image_path TEXT',
+            );
+          }
+          if (from < 5) {
+            await customStatement(
+              'ALTER TABLE play_session_players ADD COLUMN is_kp INTEGER NOT NULL DEFAULT 0',
             );
           }
         },

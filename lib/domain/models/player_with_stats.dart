@@ -28,6 +28,7 @@ class PlayerInfo {
     this.characterId,
     this.characterName,
     this.characterImagePath,
+    this.isKp = false,
   });
 
   final int id;
@@ -36,6 +37,7 @@ class PlayerInfo {
   final int? characterId;
   final String? characterName;
   final String? characterImagePath;
+  final bool isKp;
 
   /// 表示用の名前（キャラクター名がある場合は「プレイヤー名（キャラクター名）」）
   String get displayName {

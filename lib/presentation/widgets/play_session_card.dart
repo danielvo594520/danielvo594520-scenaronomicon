@@ -45,16 +45,34 @@ class PlaySessionCard extends StatelessWidget {
                           session.scenarioId == null ? Colors.grey : null,
                     ),
               ),
+              // KP
+              if (session.kps.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.theater_comedy, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        'KP: ${session.kpNamesDisplay}',
+                        style: TextStyle(color: Colors.grey[700]),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               // プレイヤー
               if (session.players.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     Icon(Icons.people, size: 16, color: Colors.grey[600]),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        session.playerNamesDisplay,
+                        'PL: ${session.playerNamesOnlyDisplay}',
                         style: TextStyle(color: Colors.grey[700]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

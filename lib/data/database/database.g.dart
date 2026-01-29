@@ -2445,8 +2445,18 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES characters (id)'));
+  static const VerificationMeta _isKpMeta = const VerificationMeta('isKp');
   @override
-  List<GeneratedColumn> get $columns => [playSessionId, playerId, characterId];
+  late final GeneratedColumn<bool> isKp = GeneratedColumn<bool>(
+      'is_kp', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_kp" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [playSessionId, playerId, characterId, isKp];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2477,6 +2487,10 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
           characterId.isAcceptableOrUnknown(
               data['character_id']!, _characterIdMeta));
     }
+    if (data.containsKey('is_kp')) {
+      context.handle(
+          _isKpMeta, isKp.isAcceptableOrUnknown(data['is_kp']!, _isKpMeta));
+    }
     return context;
   }
 
@@ -2492,6 +2506,8 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
           .read(DriftSqlType.int, data['${effectivePrefix}player_id'])!,
       characterId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}character_id']),
+      isKp: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_kp'])!,
     );
   }
 
@@ -2506,8 +2522,12 @@ class PlaySessionPlayer extends DataClass
   final int playSessionId;
   final int playerId;
   final int? characterId;
+  final bool isKp;
   const PlaySessionPlayer(
-      {required this.playSessionId, required this.playerId, this.characterId});
+      {required this.playSessionId,
+      required this.playerId,
+      this.characterId,
+      required this.isKp});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2516,6 +2536,7 @@ class PlaySessionPlayer extends DataClass
     if (!nullToAbsent || characterId != null) {
       map['character_id'] = Variable<int>(characterId);
     }
+    map['is_kp'] = Variable<bool>(isKp);
     return map;
   }
 
@@ -2526,6 +2547,7 @@ class PlaySessionPlayer extends DataClass
       characterId: characterId == null && nullToAbsent
           ? const Value.absent()
           : Value(characterId),
+      isKp: Value(isKp),
     );
   }
 
@@ -2536,6 +2558,7 @@ class PlaySessionPlayer extends DataClass
       playSessionId: serializer.fromJson<int>(json['playSessionId']),
       playerId: serializer.fromJson<int>(json['playerId']),
       characterId: serializer.fromJson<int?>(json['characterId']),
+      isKp: serializer.fromJson<bool>(json['isKp']),
     );
   }
   @override
@@ -2545,17 +2568,20 @@ class PlaySessionPlayer extends DataClass
       'playSessionId': serializer.toJson<int>(playSessionId),
       'playerId': serializer.toJson<int>(playerId),
       'characterId': serializer.toJson<int?>(characterId),
+      'isKp': serializer.toJson<bool>(isKp),
     };
   }
 
   PlaySessionPlayer copyWith(
           {int? playSessionId,
           int? playerId,
-          Value<int?> characterId = const Value.absent()}) =>
+          Value<int?> characterId = const Value.absent(),
+          bool? isKp}) =>
       PlaySessionPlayer(
         playSessionId: playSessionId ?? this.playSessionId,
         playerId: playerId ?? this.playerId,
         characterId: characterId.present ? characterId.value : this.characterId,
+        isKp: isKp ?? this.isKp,
       );
   PlaySessionPlayer copyWithCompanion(PlaySessionPlayersCompanion data) {
     return PlaySessionPlayer(
@@ -2565,6 +2591,7 @@ class PlaySessionPlayer extends DataClass
       playerId: data.playerId.present ? data.playerId.value : this.playerId,
       characterId:
           data.characterId.present ? data.characterId.value : this.characterId,
+      isKp: data.isKp.present ? data.isKp.value : this.isKp,
     );
   }
 
@@ -2573,37 +2600,42 @@ class PlaySessionPlayer extends DataClass
     return (StringBuffer('PlaySessionPlayer(')
           ..write('playSessionId: $playSessionId, ')
           ..write('playerId: $playerId, ')
-          ..write('characterId: $characterId')
+          ..write('characterId: $characterId, ')
+          ..write('isKp: $isKp')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(playSessionId, playerId, characterId);
+  int get hashCode => Object.hash(playSessionId, playerId, characterId, isKp);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PlaySessionPlayer &&
           other.playSessionId == this.playSessionId &&
           other.playerId == this.playerId &&
-          other.characterId == this.characterId);
+          other.characterId == this.characterId &&
+          other.isKp == this.isKp);
 }
 
 class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
   final Value<int> playSessionId;
   final Value<int> playerId;
   final Value<int?> characterId;
+  final Value<bool> isKp;
   final Value<int> rowid;
   const PlaySessionPlayersCompanion({
     this.playSessionId = const Value.absent(),
     this.playerId = const Value.absent(),
     this.characterId = const Value.absent(),
+    this.isKp = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PlaySessionPlayersCompanion.insert({
     required int playSessionId,
     required int playerId,
     this.characterId = const Value.absent(),
+    this.isKp = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : playSessionId = Value(playSessionId),
         playerId = Value(playerId);
@@ -2611,12 +2643,14 @@ class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
     Expression<int>? playSessionId,
     Expression<int>? playerId,
     Expression<int>? characterId,
+    Expression<bool>? isKp,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (playSessionId != null) 'play_session_id': playSessionId,
       if (playerId != null) 'player_id': playerId,
       if (characterId != null) 'character_id': characterId,
+      if (isKp != null) 'is_kp': isKp,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2625,11 +2659,13 @@ class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
       {Value<int>? playSessionId,
       Value<int>? playerId,
       Value<int?>? characterId,
+      Value<bool>? isKp,
       Value<int>? rowid}) {
     return PlaySessionPlayersCompanion(
       playSessionId: playSessionId ?? this.playSessionId,
       playerId: playerId ?? this.playerId,
       characterId: characterId ?? this.characterId,
+      isKp: isKp ?? this.isKp,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2646,6 +2682,9 @@ class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
     if (characterId.present) {
       map['character_id'] = Variable<int>(characterId.value);
     }
+    if (isKp.present) {
+      map['is_kp'] = Variable<bool>(isKp.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2658,6 +2697,7 @@ class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
           ..write('playSessionId: $playSessionId, ')
           ..write('playerId: $playerId, ')
           ..write('characterId: $characterId, ')
+          ..write('isKp: $isKp, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4506,6 +4546,7 @@ typedef $$PlaySessionPlayersTableCreateCompanionBuilder
   required int playSessionId,
   required int playerId,
   Value<int?> characterId,
+  Value<bool> isKp,
   Value<int> rowid,
 });
 typedef $$PlaySessionPlayersTableUpdateCompanionBuilder
@@ -4513,6 +4554,7 @@ typedef $$PlaySessionPlayersTableUpdateCompanionBuilder
   Value<int> playSessionId,
   Value<int> playerId,
   Value<int?> characterId,
+  Value<bool> isKp,
   Value<int> rowid,
 });
 
@@ -4567,6 +4609,11 @@ final class $$PlaySessionPlayersTableReferences extends BaseReferences<
 class $$PlaySessionPlayersTableFilterComposer
     extends FilterComposer<_$AppDatabase, $PlaySessionPlayersTable> {
   $$PlaySessionPlayersTableFilterComposer(super.$state);
+  ColumnFilters<bool> get isKp => $state.composableBuilder(
+      column: $state.table.isKp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
   $$PlaySessionsTableFilterComposer get playSessionId {
     final $$PlaySessionsTableFilterComposer composer = $state.composerBuilder(
         composer: this,
@@ -4607,6 +4654,11 @@ class $$PlaySessionPlayersTableFilterComposer
 class $$PlaySessionPlayersTableOrderingComposer
     extends OrderingComposer<_$AppDatabase, $PlaySessionPlayersTable> {
   $$PlaySessionPlayersTableOrderingComposer(super.$state);
+  ColumnOrderings<bool> get isKp => $state.composableBuilder(
+      column: $state.table.isKp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
   $$PlaySessionsTableOrderingComposer get playSessionId {
     final $$PlaySessionsTableOrderingComposer composer = $state.composerBuilder(
         composer: this,
@@ -4669,24 +4721,28 @@ class $$PlaySessionPlayersTableTableManager extends RootTableManager<
             Value<int> playSessionId = const Value.absent(),
             Value<int> playerId = const Value.absent(),
             Value<int?> characterId = const Value.absent(),
+            Value<bool> isKp = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PlaySessionPlayersCompanion(
             playSessionId: playSessionId,
             playerId: playerId,
             characterId: characterId,
+            isKp: isKp,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required int playSessionId,
             required int playerId,
             Value<int?> characterId = const Value.absent(),
+            Value<bool> isKp = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PlaySessionPlayersCompanion.insert(
             playSessionId: playSessionId,
             playerId: playerId,
             characterId: characterId,
+            isKp: isKp,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

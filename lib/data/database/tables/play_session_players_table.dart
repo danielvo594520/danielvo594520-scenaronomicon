@@ -9,6 +9,7 @@ class PlaySessionPlayers extends Table {
   IntColumn get playerId => integer().references(Players, #id)();
   IntColumn get characterId =>
       integer().nullable().references(Characters, #id)();
+  BoolColumn get isKp => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {playSessionId, playerId};

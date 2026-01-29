@@ -13,10 +13,12 @@ class PlayerCharacterSelect extends ConsumerStatefulWidget {
   const PlayerCharacterSelect({
     super.key,
     required this.selectedPairs,
+    this.excludedPlayerIds = const [],
     required this.onChanged,
   });
 
   final List<PlayerCharacterPair> selectedPairs;
+  final List<int> excludedPlayerIds;
   final ValueChanged<List<PlayerCharacterPair>> onChanged;
 
   @override
@@ -111,10 +113,11 @@ class _PlayerCharacterSelectState extends ConsumerState<PlayerCharacterSelect> {
   void _showPlayerSelectDialog(BuildContext context) {
     final playersAsync = ref.read(playerListProvider);
     playersAsync.whenData((players) {
-      // 既に選択済みのプレイヤーを除外
+      // 既に選択済みのプレイヤーと除外プレイヤー（KP）を除外
       final availablePlayers = players
           .where((p) =>
-              !widget.selectedPairs.any((pair) => pair.playerId == p.id))
+              !widget.selectedPairs.any((pair) => pair.playerId == p.id) &&
+              !widget.excludedPlayerIds.contains(p.id))
           .toList();
 
       if (availablePlayers.isEmpty) {

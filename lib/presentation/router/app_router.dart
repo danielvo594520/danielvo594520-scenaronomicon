@@ -5,6 +5,7 @@ import '../screens/app_shell.dart';
 import '../screens/character/character_detail_screen.dart';
 import '../screens/character/character_form_screen.dart';
 import '../screens/character/character_list_screen.dart';
+import '../screens/play_session/play_session_detail_screen.dart';
 import '../screens/play_session/play_session_form_screen.dart';
 import '../screens/play_session/play_session_list_screen.dart';
 import '../screens/player/player_detail_screen.dart';
@@ -109,15 +110,27 @@ final appRouter = GoRouter(
                   },
                 ),
                 GoRoute(
-                  path: ':id/edit',
+                  path: ':id',
                   parentNavigatorKey: _rootNavigatorKey,
                   pageBuilder: (context, state) => _fadeTransitionPage(
                     state: state,
-                    child: PlaySessionFormScreen(
-                      sessionId:
-                          int.parse(state.pathParameters['id']!),
+                    child: PlaySessionDetailScreen(
+                      id: int.parse(state.pathParameters['id']!),
                     ),
                   ),
+                  routes: [
+                    GoRoute(
+                      path: 'edit',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      pageBuilder: (context, state) => _fadeTransitionPage(
+                        state: state,
+                        child: PlaySessionFormScreen(
+                          sessionId:
+                              int.parse(state.pathParameters['id']!),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

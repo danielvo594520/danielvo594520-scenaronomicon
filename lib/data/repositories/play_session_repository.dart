@@ -36,21 +36,27 @@ class PlaySessionRepository {
     ]);
     final playerRows = await playerQuery.get();
 
-    // セッションIDでグルーピング
+    // セッションIDでグルーピング（KPとプレイヤーを分離）
+    final kpsBySession = <int, List<PlayerInfo>>{};
     final playersBySession = <int, List<PlayerInfo>>{};
     for (final row in playerRows) {
       final sessionPlayer = row.readTable(_db.playSessionPlayers);
       final player = row.readTable(_db.players);
       final character = row.readTableOrNull(_db.characters);
-      playersBySession.putIfAbsent(sessionPlayer.playSessionId, () => []).add(
-            PlayerInfo(
-              id: player.id,
-              name: player.name,
-              characterId: character?.id,
-              characterName: character?.name,
-              characterImagePath: character?.imagePath,
-            ),
-          );
+      final playerInfo = PlayerInfo(
+        id: player.id,
+        name: player.name,
+        imagePath: player.imagePath,
+        characterId: character?.id,
+        characterName: character?.name,
+        characterImagePath: character?.imagePath,
+        isKp: sessionPlayer.isKp,
+      );
+      if (sessionPlayer.isKp) {
+        kpsBySession.putIfAbsent(sessionPlayer.playSessionId, () => []).add(playerInfo);
+      } else {
+        playersBySession.putIfAbsent(sessionPlayer.playSessionId, () => []).add(playerInfo);
+      }
     }
 
     // 3. 結合
@@ -63,6 +69,7 @@ class PlaySessionRepository {
         scenarioTitle: scenario?.title,
         playedAt: session.playedAt,
         memo: session.memo,
+        kps: kpsBySession[session.id] ?? [],
         players: playersBySession[session.id] ?? [],
         createdAt: session.createdAt,
         updatedAt: session.updatedAt,
@@ -141,17 +148,27 @@ class PlaySessionRepository {
       ..where(_db.playSessionPlayers.playSessionId.equals(id));
 
     final playerRows = await playerQuery.get();
-    final players = playerRows.map((r) {
+    final kps = <PlayerInfo>[];
+    final players = <PlayerInfo>[];
+    for (final r in playerRows) {
+      final sessionPlayer = r.readTable(_db.playSessionPlayers);
       final player = r.readTable(_db.players);
       final character = r.readTableOrNull(_db.characters);
-      return PlayerInfo(
+      final playerInfo = PlayerInfo(
         id: player.id,
         name: player.name,
+        imagePath: player.imagePath,
         characterId: character?.id,
         characterName: character?.name,
         characterImagePath: character?.imagePath,
+        isKp: sessionPlayer.isKp,
       );
-    }).toList();
+      if (sessionPlayer.isKp) {
+        kps.add(playerInfo);
+      } else {
+        players.add(playerInfo);
+      }
+    }
 
     return PlaySessionWithDetails(
       id: session.id,
@@ -159,13 +176,14 @@ class PlaySessionRepository {
       scenarioTitle: scenario?.title,
       playedAt: session.playedAt,
       memo: session.memo,
+      kps: kps,
       players: players,
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
     );
   }
 
-  /// プレイ記録の参加者情報（プレイヤーID + キャラクターID）を取得
+  /// プレイ記録の参加者情報（プレイヤーID + キャラクターID + KPフラグ）を取得
   Future<List<PlayerCharacterPair>> getPlayerCharacterPairs(
       int sessionId) async {
     final query = _db.select(_db.playSessionPlayers)
@@ -175,6 +193,7 @@ class PlaySessionRepository {
         .map((r) => PlayerCharacterPair(
               playerId: r.playerId,
               characterId: r.characterId,
+              isKp: r.isKp,
             ))
         .toList();
   }
@@ -212,6 +231,7 @@ class PlaySessionRepository {
                 playSessionId: sessionId,
                 playerId: pair.playerId,
                 characterId: Value(pair.characterId),
+                isKp: Value(pair.isKp),
               ),
             );
       }
@@ -249,6 +269,7 @@ class PlaySessionRepository {
                 playSessionId: id,
                 playerId: pair.playerId,
                 characterId: Value(pair.characterId),
+                isKp: Value(pair.isKp),
               ),
             );
       }
