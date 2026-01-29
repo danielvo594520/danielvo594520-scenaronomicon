@@ -77,6 +77,7 @@ class CharacterListScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'character_list_fab',
         onPressed: () => context.push('/players/$playerId/characters/new'),
         child: const Icon(Icons.add),
       ),

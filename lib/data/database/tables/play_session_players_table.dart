@@ -12,5 +12,5 @@ class PlaySessionPlayers extends Table {
   BoolColumn get isKp => boolean().withDefault(const Constant(false))();
 
   @override
-  Set<Column> get primaryKey => {playSessionId, playerId};
+  Set<Column> get primaryKey => {playSessionId, playerId, isKp};
 }

@@ -17,6 +17,7 @@ class PlaySessionListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('プレイ記録')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'play_session_list_fab',
         onPressed: () => context.push('/sessions/new'),
         child: const Icon(Icons.add),
       ),

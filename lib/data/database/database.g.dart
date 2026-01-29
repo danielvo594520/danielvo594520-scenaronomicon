@@ -2495,7 +2495,7 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {playSessionId, playerId};
+  Set<GeneratedColumn> get $primaryKey => {playSessionId, playerId, isKp};
   @override
   PlaySessionPlayer map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';

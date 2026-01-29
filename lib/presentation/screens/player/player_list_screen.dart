@@ -17,6 +17,7 @@ class PlayerListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('プレイヤー')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'player_list_fab',
         onPressed: () => context.push('/players/new'),
         child: const Icon(Icons.add),
       ),

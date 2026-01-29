@@ -170,6 +170,7 @@ class _ScenarioListScreenState extends ConsumerState<ScenarioListScreen> {
       floatingActionButton: Semantics(
         label: 'シナリオを追加',
         child: FloatingActionButton(
+          heroTag: 'scenario_list_fab',
           onPressed: () {
             HapticFeedback.lightImpact();
             context.push('/scenarios/new');
