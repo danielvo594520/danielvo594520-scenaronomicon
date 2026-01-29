@@ -4,6 +4,7 @@ class PlayerWithStats {
     required this.id,
     required this.name,
     this.note,
+    this.imagePath,
     required this.sessionCount,
     required this.createdAt,
     required this.updatedAt,
@@ -12,6 +13,7 @@ class PlayerWithStats {
   final int id;
   final String name;
   final String? note;
+  final String? imagePath;
   final int sessionCount;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -22,6 +24,7 @@ class PlayerInfo {
   const PlayerInfo({
     required this.id,
     required this.name,
+    this.imagePath,
     this.characterId,
     this.characterName,
     this.characterImagePath,
@@ -29,6 +32,7 @@ class PlayerInfo {
 
   final int id;
   final String name;
+  final String? imagePath;
   final int? characterId;
   final String? characterName;
   final String? characterImagePath;

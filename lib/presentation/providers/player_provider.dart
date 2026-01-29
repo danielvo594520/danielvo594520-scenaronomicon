@@ -19,10 +19,12 @@ class PlayerListNotifier extends AsyncNotifier<List<PlayerWithStats>> {
   Future<void> add({
     required String name,
     String? note,
+    String? imagePath,
   }) async {
     await ref.read(playerRepositoryProvider).create(
           name: name,
           note: note,
+          imagePath: imagePath,
         );
     ref.invalidateSelf();
   }
@@ -31,16 +33,29 @@ class PlayerListNotifier extends AsyncNotifier<List<PlayerWithStats>> {
     required int id,
     required String name,
     String? note,
+    String? imagePath,
+    String? oldImagePath,
   }) async {
+    // 画像が変更された場合、古い画像を削除
+    if (oldImagePath != null && oldImagePath != imagePath) {
+      await ImageStorageService().deleteImage(oldImagePath);
+    }
     await ref.read(playerRepositoryProvider).update(
           id: id,
           name: name,
           note: note,
+          imagePath: imagePath,
         );
     ref.invalidateSelf();
   }
 
   Future<void> deletePlayer(int id) async {
+    // プレイヤー自身の画像を削除
+    final player = await ref.read(playerRepositoryProvider).getById(id);
+    if (player.imagePath != null) {
+      await ImageStorageService().deleteImage(player.imagePath!);
+    }
+
     // キャラクターの画像パスを取得して削除
     final imagePaths =
         await ref.read(characterRepositoryProvider).deleteAllByPlayerId(id);

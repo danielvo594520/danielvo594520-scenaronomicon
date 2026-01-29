@@ -1385,6 +1385,12 @@ class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
       'note', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imagePathMeta =
+      const VerificationMeta('imagePath');
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+      'image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -1398,7 +1404,8 @@ class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, name, note, createdAt, updatedAt];
+  List<GeneratedColumn> get $columns =>
+      [id, name, note, imagePath, createdAt, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1421,6 +1428,10 @@ class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
     if (data.containsKey('note')) {
       context.handle(
           _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(_imagePathMeta,
+          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -1449,6 +1460,8 @@ class $PlayersTable extends Players with TableInfo<$PlayersTable, Player> {
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       note: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      imagePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -1466,12 +1479,14 @@ class Player extends DataClass implements Insertable<Player> {
   final int id;
   final String name;
   final String? note;
+  final String? imagePath;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Player(
       {required this.id,
       required this.name,
       this.note,
+      this.imagePath,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -1481,6 +1496,9 @@ class Player extends DataClass implements Insertable<Player> {
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1492,6 +1510,9 @@ class Player extends DataClass implements Insertable<Player> {
       id: Value(id),
       name: Value(name),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1504,6 +1525,7 @@ class Player extends DataClass implements Insertable<Player> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       note: serializer.fromJson<String?>(json['note']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1515,6 +1537,7 @@ class Player extends DataClass implements Insertable<Player> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'note': serializer.toJson<String?>(note),
+      'imagePath': serializer.toJson<String?>(imagePath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1524,12 +1547,14 @@ class Player extends DataClass implements Insertable<Player> {
           {int? id,
           String? name,
           Value<String?> note = const Value.absent(),
+          Value<String?> imagePath = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Player(
         id: id ?? this.id,
         name: name ?? this.name,
         note: note.present ? note.value : this.note,
+        imagePath: imagePath.present ? imagePath.value : this.imagePath,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -1538,6 +1563,7 @@ class Player extends DataClass implements Insertable<Player> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       note: data.note.present ? data.note.value : this.note,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1549,6 +1575,7 @@ class Player extends DataClass implements Insertable<Player> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('note: $note, ')
+          ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1556,7 +1583,8 @@ class Player extends DataClass implements Insertable<Player> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, note, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(id, name, note, imagePath, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1564,6 +1592,7 @@ class Player extends DataClass implements Insertable<Player> {
           other.id == this.id &&
           other.name == this.name &&
           other.note == this.note &&
+          other.imagePath == this.imagePath &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1572,12 +1601,14 @@ class PlayersCompanion extends UpdateCompanion<Player> {
   final Value<int> id;
   final Value<String> name;
   final Value<String?> note;
+  final Value<String?> imagePath;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const PlayersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.note = const Value.absent(),
+    this.imagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -1585,6 +1616,7 @@ class PlayersCompanion extends UpdateCompanion<Player> {
     this.id = const Value.absent(),
     required String name,
     this.note = const Value.absent(),
+    this.imagePath = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
   })  : name = Value(name),
@@ -1594,6 +1626,7 @@ class PlayersCompanion extends UpdateCompanion<Player> {
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? note,
+    Expression<String>? imagePath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -1601,6 +1634,7 @@ class PlayersCompanion extends UpdateCompanion<Player> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (note != null) 'note': note,
+      if (imagePath != null) 'image_path': imagePath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -1610,12 +1644,14 @@ class PlayersCompanion extends UpdateCompanion<Player> {
       {Value<int>? id,
       Value<String>? name,
       Value<String?>? note,
+      Value<String?>? imagePath,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
     return PlayersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       note: note ?? this.note,
+      imagePath: imagePath ?? this.imagePath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -1633,6 +1669,9 @@ class PlayersCompanion extends UpdateCompanion<Player> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1648,6 +1687,7 @@ class PlayersCompanion extends UpdateCompanion<Player> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('note: $note, ')
+          ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3641,6 +3681,7 @@ typedef $$PlayersTableCreateCompanionBuilder = PlayersCompanion Function({
   Value<int> id,
   required String name,
   Value<String?> note,
+  Value<String?> imagePath,
   required DateTime createdAt,
   required DateTime updatedAt,
 });
@@ -3648,6 +3689,7 @@ typedef $$PlayersTableUpdateCompanionBuilder = PlayersCompanion Function({
   Value<int> id,
   Value<String> name,
   Value<String?> note,
+  Value<String?> imagePath,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -3704,6 +3746,11 @@ class $$PlayersTableFilterComposer
 
   ColumnFilters<String> get note => $state.composableBuilder(
       column: $state.table.note,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imagePath => $state.composableBuilder(
+      column: $state.table.imagePath,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -3766,6 +3813,11 @@ class $$PlayersTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
+  ColumnOrderings<String> get imagePath => $state.composableBuilder(
+      column: $state.table.imagePath,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
   ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
@@ -3801,6 +3853,7 @@ class $$PlayersTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> note = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
           }) =>
@@ -3808,6 +3861,7 @@ class $$PlayersTableTableManager extends RootTableManager<
             id: id,
             name: name,
             note: note,
+            imagePath: imagePath,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
@@ -3815,6 +3869,7 @@ class $$PlayersTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             required String name,
             Value<String?> note = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
           }) =>
@@ -3822,6 +3877,7 @@ class $$PlayersTableTableManager extends RootTableManager<
             id: id,
             name: name,
             note: note,
+            imagePath: imagePath,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),

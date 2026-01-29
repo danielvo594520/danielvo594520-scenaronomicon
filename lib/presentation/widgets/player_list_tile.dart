@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/player_with_stats.dart';
+import 'player_thumbnail.dart';
 
 /// プレイヤー一覧用のリストタイル
 class PlayerListTile extends StatelessWidget {
@@ -18,12 +19,10 @@ class PlayerListTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            Icons.person,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
+        leading: PlayerThumbnail(
+          imagePath: player.imagePath,
+          size: 40,
+          borderRadius: 20,
         ),
         title: Text(player.name),
         subtitle: Text('参加: ${player.sessionCount}回'),

@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -49,6 +49,11 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(characters);
             await customStatement(
               'ALTER TABLE play_session_players ADD COLUMN character_id INTEGER REFERENCES characters(id)',
+            );
+          }
+          if (from < 4) {
+            await customStatement(
+              'ALTER TABLE players ADD COLUMN image_path TEXT',
             );
           }
         },
