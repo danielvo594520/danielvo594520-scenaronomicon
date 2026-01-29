@@ -8,6 +8,7 @@ class PlaySessionWithDetails {
     this.scenarioTitle,
     required this.playedAt,
     this.memo,
+    required this.kps,
     required this.players,
     required this.createdAt,
     required this.updatedAt,
@@ -18,12 +19,22 @@ class PlaySessionWithDetails {
   final String? scenarioTitle;
   final DateTime playedAt;
   final String? memo;
+  final List<PlayerInfo> kps;
   final List<PlayerInfo> players;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   /// 削除されたシナリオの場合の表示テキスト
   String get scenarioDisplayTitle => scenarioTitle ?? '削除されたシナリオ';
+
+  /// 全参加者（KP + プレイヤー）
+  List<PlayerInfo> get allParticipants => [...kps, ...players];
+
+  /// カンマ区切りのKP名
+  String get kpNamesDisplay {
+    if (kps.isEmpty) return '';
+    return kps.map((p) => p.name).join('、');
+  }
 
   /// カンマ区切りのプレイヤー名（キャラクター名含む）
   String get playerNamesDisplay {

@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -55,6 +55,30 @@ class AppDatabase extends _$AppDatabase {
             await customStatement(
               'ALTER TABLE players ADD COLUMN image_path TEXT',
             );
+          }
+          if (from < 5) {
+            await customStatement(
+              'ALTER TABLE play_session_players ADD COLUMN is_kp INTEGER NOT NULL DEFAULT 0',
+            );
+          }
+          if (from < 6) {
+            // 主キーを (playSessionId, playerId) から (playSessionId, playerId, isKp) に変更
+            // SQLiteでは主キー変更にテーブル再作成が必要
+            await customStatement('''
+              CREATE TABLE play_session_players_new (
+                play_session_id INTEGER NOT NULL REFERENCES play_sessions(id),
+                player_id INTEGER NOT NULL REFERENCES players(id),
+                character_id INTEGER REFERENCES characters(id),
+                is_kp INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (play_session_id, player_id, is_kp)
+              )
+            ''');
+            await customStatement('''
+              INSERT INTO play_session_players_new (play_session_id, player_id, character_id, is_kp)
+              SELECT play_session_id, player_id, character_id, is_kp FROM play_session_players
+            ''');
+            await customStatement('DROP TABLE play_session_players');
+            await customStatement('ALTER TABLE play_session_players_new RENAME TO play_session_players');
           }
         },
         beforeOpen: (details) async {

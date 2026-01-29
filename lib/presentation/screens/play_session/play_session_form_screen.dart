@@ -7,6 +7,7 @@ import '../../../domain/models/player_character_pair.dart';
 import '../../providers/character_provider.dart';
 import '../../providers/play_session_provider.dart';
 import '../../providers/player_provider.dart';
+import '../../widgets/kp_select.dart';
 import '../../widgets/player_character_select.dart';
 import '../../widgets/scenario_search_dropdown.dart';
 
@@ -33,6 +34,7 @@ class _PlaySessionFormScreenState
 
   int? _selectedScenarioId;
   DateTime _playedAt = DateTime.now();
+  List<int> _selectedKpIds = [];
   List<PlayerCharacterPair> _selectedPairs = [];
   bool _isInitialized = false;
   bool _isSaving = false;
@@ -68,7 +70,9 @@ class _PlaySessionFormScreenState
         _selectedScenarioId = session.scenarioId;
         _playedAt = session.playedAt;
         _memoController.text = session.memo ?? '';
-        _selectedPairs = pairs;
+        // KPとプレイヤーを分離
+        _selectedKpIds = pairs.where((p) => p.isKp).map((p) => p.playerId).toList();
+        _selectedPairs = pairs.where((p) => !p.isKp).toList();
         _isInitialized = true;
         if (mounted) setState(() {});
       });
@@ -115,6 +119,13 @@ class _PlaySessionFormScreenState
                   ),
                   child: Text(dateFormatter.format(_playedAt)),
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              // KP選択
+              KpSelect(
+                selectedKpIds: _selectedKpIds,
+                onChanged: (value) => setState(() => _selectedKpIds = value),
               ),
               const SizedBox(height: 16),
 
@@ -178,13 +189,19 @@ class _PlaySessionFormScreenState
           ? null
           : _memoController.text.trim();
 
+      // KPとプレイヤーを統合（KPはisKp=true, キャラクターなし）
+      final allPairs = [
+        ..._selectedKpIds.map((id) => PlayerCharacterPair(playerId: id, isKp: true)),
+        ..._selectedPairs,
+      ];
+
       if (_isEdit) {
         await ref.read(playSessionListProvider.notifier).updateSession(
               id: widget.sessionId!,
               scenarioId: _selectedScenarioId,
               playedAt: _playedAt,
               memo: memo,
-              playerCharacterPairs: _selectedPairs,
+              playerCharacterPairs: allPairs,
             );
         ref.invalidate(playSessionDetailProvider(widget.sessionId!));
         ref.invalidate(
@@ -194,7 +211,7 @@ class _PlaySessionFormScreenState
               scenarioId: _selectedScenarioId,
               playedAt: _playedAt,
               memo: memo,
-              playerCharacterPairs: _selectedPairs,
+              playerCharacterPairs: allPairs,
             );
       }
 
@@ -207,6 +224,11 @@ class _PlaySessionFormScreenState
 
       // プレイヤーの参加数を更新
       ref.invalidate(playerListProvider);
+      // KPの統計も更新
+      for (final kpId in _selectedKpIds) {
+        ref.invalidate(playerSessionCountProvider(kpId));
+        ref.invalidate(playerPlayedScenariosProvider(kpId));
+      }
       for (final pair in _selectedPairs) {
         ref.invalidate(playerSessionCountProvider(pair.playerId));
         ref.invalidate(playerPlayedScenariosProvider(pair.playerId));

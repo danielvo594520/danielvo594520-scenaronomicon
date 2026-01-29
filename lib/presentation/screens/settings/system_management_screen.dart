@@ -16,6 +16,7 @@ class SystemManagementScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('ゲームシステム管理')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'system_management_fab',
         onPressed: () => _showSystemDialog(context, ref),
         child: const Icon(Icons.add),
       ),

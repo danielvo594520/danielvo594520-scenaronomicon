@@ -33,6 +33,7 @@ class TagManagementScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('タグ管理')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'tag_management_fab',
         onPressed: () => _showTagDialog(context, ref),
         child: const Icon(Icons.add),
       ),

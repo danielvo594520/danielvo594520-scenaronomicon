@@ -16,10 +16,15 @@ class PlayerRepository {
     final playerRows = await playersQuery.get();
 
     // 2. セッション数を集計（N+1回避）
+    // 同じセッションでKPとプレイヤー両方に登録されていても1回としてカウント
     final countRows = await (_db.select(_db.playSessionPlayers)).get();
     final sessionCounts = <int, int>{};
+    final playerSessionSet = <int, Set<int>>{}; // playerId -> Set<sessionId>
     for (final row in countRows) {
-      sessionCounts[row.playerId] = (sessionCounts[row.playerId] ?? 0) + 1;
+      playerSessionSet.putIfAbsent(row.playerId, () => {}).add(row.playSessionId);
+    }
+    for (final entry in playerSessionSet.entries) {
+      sessionCounts[entry.key] = entry.value.length;
     }
 
     // 3. 結合
@@ -41,12 +46,14 @@ class PlayerRepository {
     return (_db.select(_db.players)..where((p) => p.id.equals(id))).getSingle();
   }
 
-  /// プレイヤーの参加セッション数
+  /// プレイヤーの参加セッション数（同じセッションでKPとプレイヤー両方でも1回）
   Future<int> getSessionCount(int playerId) async {
     final result = await (_db.select(_db.playSessionPlayers)
           ..where((p) => p.playerId.equals(playerId)))
         .get();
-    return result.length;
+    // セッションIDでユニークにカウント
+    final sessionIds = result.map((r) => r.playSessionId).toSet();
+    return sessionIds.length;
   }
 
   /// プレイヤーが参加したシナリオ一覧（重複除外）
