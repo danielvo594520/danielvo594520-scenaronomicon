@@ -9,6 +9,7 @@ import '../../providers/player_provider.dart';
 import '../../widgets/character_thumbnail.dart';
 import '../../widgets/delete_confirm_dialog.dart';
 import '../../widgets/player_thumbnail.dart';
+import '../../widgets/scenario_thumbnail.dart';
 
 /// プレイ記録詳細画面
 class PlaySessionDetailScreen extends ConsumerWidget {
@@ -73,15 +74,44 @@ class PlaySessionDetailScreen extends ConsumerWidget {
                   onTap: session.scenarioId != null
                       ? () => context.push('/scenarios/${session.scenarioId}')
                       : null,
-                  child: _SectionTile(
-                    icon: Icons.book,
-                    title: 'シナリオ',
-                    content: session.scenarioDisplayTitle,
-                    trailing: session.scenarioId != null
-                        ? const Icon(Icons.chevron_right)
-                        : null,
-                    contentColor:
-                        session.scenarioId == null ? Colors.grey : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ScenarioThumbnail(
+                          imagePath: session.scenarioThumbnailPath,
+                          width: 80,
+                          height: 100,
+                          borderRadius: 8,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'シナリオ',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                session.scenarioDisplayTitle,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: session.scenarioId == null
+                                          ? Colors.grey
+                                          : null,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (session.scenarioId != null)
+                          const Icon(Icons.chevron_right),
+                      ],
+                    ),
                   ),
                 ),
                 const Divider(height: 1),

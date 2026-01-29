@@ -6,6 +6,7 @@ class PlaySessionWithDetails {
     required this.id,
     this.scenarioId,
     this.scenarioTitle,
+    this.scenarioThumbnailPath,
     required this.playedAt,
     this.memo,
     required this.kps,
@@ -17,6 +18,7 @@ class PlaySessionWithDetails {
   final int id;
   final int? scenarioId;
   final String? scenarioTitle;
+  final String? scenarioThumbnailPath;
   final DateTime playedAt;
   final String? memo;
   final List<PlayerInfo> kps;
