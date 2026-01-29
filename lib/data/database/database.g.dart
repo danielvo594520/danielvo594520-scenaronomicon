@@ -1997,6 +1997,381 @@ class PlaySessionsCompanion extends UpdateCompanion<PlaySession> {
   }
 }
 
+class $CharactersTable extends Characters
+    with TableInfo<$CharactersTable, Character> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharactersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _playerIdMeta =
+      const VerificationMeta('playerId');
+  @override
+  late final GeneratedColumn<int> playerId = GeneratedColumn<int>(
+      'player_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES players (id)'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imagePathMeta =
+      const VerificationMeta('imagePath');
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+      'image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, playerId, name, url, imagePath, createdAt, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'characters';
+  @override
+  VerificationContext validateIntegrity(Insertable<Character> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('player_id')) {
+      context.handle(_playerIdMeta,
+          playerId.isAcceptableOrUnknown(data['player_id']!, _playerIdMeta));
+    } else if (isInserting) {
+      context.missing(_playerIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(_imagePathMeta,
+          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Character map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Character(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      playerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}player_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url']),
+      imagePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $CharactersTable createAlias(String alias) {
+    return $CharactersTable(attachedDatabase, alias);
+  }
+}
+
+class Character extends DataClass implements Insertable<Character> {
+  final int id;
+  final int playerId;
+  final String name;
+  final String? url;
+  final String? imagePath;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const Character(
+      {required this.id,
+      required this.playerId,
+      required this.name,
+      this.url,
+      this.imagePath,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['player_id'] = Variable<int>(playerId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || url != null) {
+      map['url'] = Variable<String>(url);
+    }
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CharactersCompanion toCompanion(bool nullToAbsent) {
+    return CharactersCompanion(
+      id: Value(id),
+      playerId: Value(playerId),
+      name: Value(name),
+      url: url == null && nullToAbsent ? const Value.absent() : Value(url),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Character.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Character(
+      id: serializer.fromJson<int>(json['id']),
+      playerId: serializer.fromJson<int>(json['playerId']),
+      name: serializer.fromJson<String>(json['name']),
+      url: serializer.fromJson<String?>(json['url']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'playerId': serializer.toJson<int>(playerId),
+      'name': serializer.toJson<String>(name),
+      'url': serializer.toJson<String?>(url),
+      'imagePath': serializer.toJson<String?>(imagePath),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  Character copyWith(
+          {int? id,
+          int? playerId,
+          String? name,
+          Value<String?> url = const Value.absent(),
+          Value<String?> imagePath = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      Character(
+        id: id ?? this.id,
+        playerId: playerId ?? this.playerId,
+        name: name ?? this.name,
+        url: url.present ? url.value : this.url,
+        imagePath: imagePath.present ? imagePath.value : this.imagePath,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  Character copyWithCompanion(CharactersCompanion data) {
+    return Character(
+      id: data.id.present ? data.id.value : this.id,
+      playerId: data.playerId.present ? data.playerId.value : this.playerId,
+      name: data.name.present ? data.name.value : this.name,
+      url: data.url.present ? data.url.value : this.url,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Character(')
+          ..write('id: $id, ')
+          ..write('playerId: $playerId, ')
+          ..write('name: $name, ')
+          ..write('url: $url, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, playerId, name, url, imagePath, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Character &&
+          other.id == this.id &&
+          other.playerId == this.playerId &&
+          other.name == this.name &&
+          other.url == this.url &&
+          other.imagePath == this.imagePath &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CharactersCompanion extends UpdateCompanion<Character> {
+  final Value<int> id;
+  final Value<int> playerId;
+  final Value<String> name;
+  final Value<String?> url;
+  final Value<String?> imagePath;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const CharactersCompanion({
+    this.id = const Value.absent(),
+    this.playerId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.url = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  CharactersCompanion.insert({
+    this.id = const Value.absent(),
+    required int playerId,
+    required String name,
+    this.url = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  })  : playerId = Value(playerId),
+        name = Value(name),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<Character> custom({
+    Expression<int>? id,
+    Expression<int>? playerId,
+    Expression<String>? name,
+    Expression<String>? url,
+    Expression<String>? imagePath,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (playerId != null) 'player_id': playerId,
+      if (name != null) 'name': name,
+      if (url != null) 'url': url,
+      if (imagePath != null) 'image_path': imagePath,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  CharactersCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? playerId,
+      Value<String>? name,
+      Value<String?>? url,
+      Value<String?>? imagePath,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return CharactersCompanion(
+      id: id ?? this.id,
+      playerId: playerId ?? this.playerId,
+      name: name ?? this.name,
+      url: url ?? this.url,
+      imagePath: imagePath ?? this.imagePath,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (playerId.present) {
+      map['player_id'] = Variable<int>(playerId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharactersCompanion(')
+          ..write('id: $id, ')
+          ..write('playerId: $playerId, ')
+          ..write('name: $name, ')
+          ..write('url: $url, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PlaySessionPlayersTable extends PlaySessionPlayers
     with TableInfo<$PlaySessionPlayersTable, PlaySessionPlayer> {
   @override
@@ -2021,8 +2396,17 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES players (id)'));
+  static const VerificationMeta _characterIdMeta =
+      const VerificationMeta('characterId');
   @override
-  List<GeneratedColumn> get $columns => [playSessionId, playerId];
+  late final GeneratedColumn<int> characterId = GeneratedColumn<int>(
+      'character_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES characters (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [playSessionId, playerId, characterId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2047,6 +2431,12 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
     } else if (isInserting) {
       context.missing(_playerIdMeta);
     }
+    if (data.containsKey('character_id')) {
+      context.handle(
+          _characterIdMeta,
+          characterId.isAcceptableOrUnknown(
+              data['character_id']!, _characterIdMeta));
+    }
     return context;
   }
 
@@ -2060,6 +2450,8 @@ class $PlaySessionPlayersTable extends PlaySessionPlayers
           .read(DriftSqlType.int, data['${effectivePrefix}play_session_id'])!,
       playerId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}player_id'])!,
+      characterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}character_id']),
     );
   }
 
@@ -2073,13 +2465,17 @@ class PlaySessionPlayer extends DataClass
     implements Insertable<PlaySessionPlayer> {
   final int playSessionId;
   final int playerId;
+  final int? characterId;
   const PlaySessionPlayer(
-      {required this.playSessionId, required this.playerId});
+      {required this.playSessionId, required this.playerId, this.characterId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['play_session_id'] = Variable<int>(playSessionId);
     map['player_id'] = Variable<int>(playerId);
+    if (!nullToAbsent || characterId != null) {
+      map['character_id'] = Variable<int>(characterId);
+    }
     return map;
   }
 
@@ -2087,6 +2483,9 @@ class PlaySessionPlayer extends DataClass
     return PlaySessionPlayersCompanion(
       playSessionId: Value(playSessionId),
       playerId: Value(playerId),
+      characterId: characterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(characterId),
     );
   }
 
@@ -2096,6 +2495,7 @@ class PlaySessionPlayer extends DataClass
     return PlaySessionPlayer(
       playSessionId: serializer.fromJson<int>(json['playSessionId']),
       playerId: serializer.fromJson<int>(json['playerId']),
+      characterId: serializer.fromJson<int?>(json['characterId']),
     );
   }
   @override
@@ -2104,13 +2504,18 @@ class PlaySessionPlayer extends DataClass
     return <String, dynamic>{
       'playSessionId': serializer.toJson<int>(playSessionId),
       'playerId': serializer.toJson<int>(playerId),
+      'characterId': serializer.toJson<int?>(characterId),
     };
   }
 
-  PlaySessionPlayer copyWith({int? playSessionId, int? playerId}) =>
+  PlaySessionPlayer copyWith(
+          {int? playSessionId,
+          int? playerId,
+          Value<int?> characterId = const Value.absent()}) =>
       PlaySessionPlayer(
         playSessionId: playSessionId ?? this.playSessionId,
         playerId: playerId ?? this.playerId,
+        characterId: characterId.present ? characterId.value : this.characterId,
       );
   PlaySessionPlayer copyWithCompanion(PlaySessionPlayersCompanion data) {
     return PlaySessionPlayer(
@@ -2118,6 +2523,8 @@ class PlaySessionPlayer extends DataClass
           ? data.playSessionId.value
           : this.playSessionId,
       playerId: data.playerId.present ? data.playerId.value : this.playerId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
     );
   }
 
@@ -2125,53 +2532,64 @@ class PlaySessionPlayer extends DataClass
   String toString() {
     return (StringBuffer('PlaySessionPlayer(')
           ..write('playSessionId: $playSessionId, ')
-          ..write('playerId: $playerId')
+          ..write('playerId: $playerId, ')
+          ..write('characterId: $characterId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(playSessionId, playerId);
+  int get hashCode => Object.hash(playSessionId, playerId, characterId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PlaySessionPlayer &&
           other.playSessionId == this.playSessionId &&
-          other.playerId == this.playerId);
+          other.playerId == this.playerId &&
+          other.characterId == this.characterId);
 }
 
 class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
   final Value<int> playSessionId;
   final Value<int> playerId;
+  final Value<int?> characterId;
   final Value<int> rowid;
   const PlaySessionPlayersCompanion({
     this.playSessionId = const Value.absent(),
     this.playerId = const Value.absent(),
+    this.characterId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PlaySessionPlayersCompanion.insert({
     required int playSessionId,
     required int playerId,
+    this.characterId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : playSessionId = Value(playSessionId),
         playerId = Value(playerId);
   static Insertable<PlaySessionPlayer> custom({
     Expression<int>? playSessionId,
     Expression<int>? playerId,
+    Expression<int>? characterId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (playSessionId != null) 'play_session_id': playSessionId,
       if (playerId != null) 'player_id': playerId,
+      if (characterId != null) 'character_id': characterId,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   PlaySessionPlayersCompanion copyWith(
-      {Value<int>? playSessionId, Value<int>? playerId, Value<int>? rowid}) {
+      {Value<int>? playSessionId,
+      Value<int>? playerId,
+      Value<int?>? characterId,
+      Value<int>? rowid}) {
     return PlaySessionPlayersCompanion(
       playSessionId: playSessionId ?? this.playSessionId,
       playerId: playerId ?? this.playerId,
+      characterId: characterId ?? this.characterId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2185,6 +2603,9 @@ class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
     if (playerId.present) {
       map['player_id'] = Variable<int>(playerId.value);
     }
+    if (characterId.present) {
+      map['character_id'] = Variable<int>(characterId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2196,6 +2617,7 @@ class PlaySessionPlayersCompanion extends UpdateCompanion<PlaySessionPlayer> {
     return (StringBuffer('PlaySessionPlayersCompanion(')
           ..write('playSessionId: $playSessionId, ')
           ..write('playerId: $playerId, ')
+          ..write('characterId: $characterId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2211,6 +2633,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ScenarioTagsTable scenarioTags = $ScenarioTagsTable(this);
   late final $PlayersTable players = $PlayersTable(this);
   late final $PlaySessionsTable playSessions = $PlaySessionsTable(this);
+  late final $CharactersTable characters = $CharactersTable(this);
   late final $PlaySessionPlayersTable playSessionPlayers =
       $PlaySessionPlayersTable(this);
   @override
@@ -2224,6 +2647,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         scenarioTags,
         players,
         playSessions,
+        characters,
         playSessionPlayers
       ];
   @override
@@ -3232,6 +3656,21 @@ final class $$PlayersTableReferences
     extends BaseReferences<_$AppDatabase, $PlayersTable, Player> {
   $$PlayersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
+  static MultiTypedResultKey<$CharactersTable, List<Character>>
+      _charactersRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.characters,
+              aliasName:
+                  $_aliasNameGenerator(db.players.id, db.characters.playerId));
+
+  $$CharactersTableProcessedTableManager get charactersRefs {
+    final manager = $$CharactersTableTableManager($_db, $_db.characters)
+        .filter((f) => f.playerId.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_charactersRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
   static MultiTypedResultKey<$PlaySessionPlayersTable, List<PlaySessionPlayer>>
       _playSessionPlayersRefsTable(_$AppDatabase db) =>
           MultiTypedResultKey.fromTable(db.playSessionPlayers,
@@ -3277,6 +3716,19 @@ class $$PlayersTableFilterComposer
       column: $state.table.updatedAt,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ComposableFilter charactersRefs(
+      ComposableFilter Function($$CharactersTableFilterComposer f) f) {
+    final $$CharactersTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $state.db.characters,
+        getReferencedColumn: (t) => t.playerId,
+        builder: (joinBuilder, parentComposers) =>
+            $$CharactersTableFilterComposer(ComposerState($state.db,
+                $state.db.characters, joinBuilder, parentComposers)));
+    return f(composer);
+  }
 
   ComposableFilter playSessionPlayersRefs(
       ComposableFilter Function($$PlaySessionPlayersTableFilterComposer f) f) {
@@ -3335,7 +3787,8 @@ class $$PlayersTableTableManager extends RootTableManager<
     $$PlayersTableUpdateCompanionBuilder,
     (Player, $$PlayersTableReferences),
     Player,
-    PrefetchHooks Function({bool playSessionPlayersRefs})> {
+    PrefetchHooks Function(
+        {bool charactersRefs, bool playSessionPlayersRefs})> {
   $$PlayersTableTableManager(_$AppDatabase db, $PlayersTable table)
       : super(TableManagerState(
           db: db,
@@ -3376,15 +3829,29 @@ class $$PlayersTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$PlayersTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({playSessionPlayersRefs = false}) {
+          prefetchHooksCallback: (
+              {charactersRefs = false, playSessionPlayersRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
+                if (charactersRefs) db.characters,
                 if (playSessionPlayersRefs) db.playSessionPlayers
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
+                  if (charactersRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$PlayersTableReferences._charactersRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$PlayersTableReferences(db, table, p0)
+                                .charactersRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.playerId == item.id),
+                        typedResults: items),
                   if (playSessionPlayersRefs)
                     await $_getPrefetchedData(
                         currentTable: table,
@@ -3414,7 +3881,7 @@ typedef $$PlayersTableProcessedTableManager = ProcessedTableManager<
     $$PlayersTableUpdateCompanionBuilder,
     (Player, $$PlayersTableReferences),
     Player,
-    PrefetchHooks Function({bool playSessionPlayersRefs})>;
+    PrefetchHooks Function({bool charactersRefs, bool playSessionPlayersRefs})>;
 typedef $$PlaySessionsTableCreateCompanionBuilder = PlaySessionsCompanion
     Function({
   Value<int> id,
@@ -3690,16 +4157,306 @@ typedef $$PlaySessionsTableProcessedTableManager = ProcessedTableManager<
     (PlaySession, $$PlaySessionsTableReferences),
     PlaySession,
     PrefetchHooks Function({bool scenarioId, bool playSessionPlayersRefs})>;
+typedef $$CharactersTableCreateCompanionBuilder = CharactersCompanion Function({
+  Value<int> id,
+  required int playerId,
+  required String name,
+  Value<String?> url,
+  Value<String?> imagePath,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$CharactersTableUpdateCompanionBuilder = CharactersCompanion Function({
+  Value<int> id,
+  Value<int> playerId,
+  Value<String> name,
+  Value<String?> url,
+  Value<String?> imagePath,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+final class $$CharactersTableReferences
+    extends BaseReferences<_$AppDatabase, $CharactersTable, Character> {
+  $$CharactersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PlayersTable _playerIdTable(_$AppDatabase db) => db.players
+      .createAlias($_aliasNameGenerator(db.characters.playerId, db.players.id));
+
+  $$PlayersTableProcessedTableManager? get playerId {
+    if ($_item.playerId == null) return null;
+    final manager = $$PlayersTableTableManager($_db, $_db.players)
+        .filter((f) => f.id($_item.playerId!));
+    final item = $_typedResult.readTableOrNull(_playerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$PlaySessionPlayersTable, List<PlaySessionPlayer>>
+      _playSessionPlayersRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.playSessionPlayers,
+              aliasName: $_aliasNameGenerator(
+                  db.characters.id, db.playSessionPlayers.characterId));
+
+  $$PlaySessionPlayersTableProcessedTableManager get playSessionPlayersRefs {
+    final manager =
+        $$PlaySessionPlayersTableTableManager($_db, $_db.playSessionPlayers)
+            .filter((f) => f.characterId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_playSessionPlayersRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$CharactersTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $CharactersTable> {
+  $$CharactersTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imagePath => $state.composableBuilder(
+      column: $state.table.imagePath,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$PlayersTableFilterComposer get playerId {
+    final $$PlayersTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.playerId,
+        referencedTable: $state.db.players,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) => $$PlayersTableFilterComposer(
+            ComposerState(
+                $state.db, $state.db.players, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  ComposableFilter playSessionPlayersRefs(
+      ComposableFilter Function($$PlaySessionPlayersTableFilterComposer f) f) {
+    final $$PlaySessionPlayersTableFilterComposer composer = $state
+        .composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $state.db.playSessionPlayers,
+            getReferencedColumn: (t) => t.characterId,
+            builder: (joinBuilder, parentComposers) =>
+                $$PlaySessionPlayersTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.playSessionPlayers,
+                    joinBuilder,
+                    parentComposers)));
+    return f(composer);
+  }
+}
+
+class $$CharactersTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $CharactersTable> {
+  $$CharactersTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get name => $state.composableBuilder(
+      column: $state.table.name,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get imagePath => $state.composableBuilder(
+      column: $state.table.imagePath,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
+      column: $state.table.createdAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get updatedAt => $state.composableBuilder(
+      column: $state.table.updatedAt,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$PlayersTableOrderingComposer get playerId {
+    final $$PlayersTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.playerId,
+        referencedTable: $state.db.players,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$PlayersTableOrderingComposer(ComposerState(
+                $state.db, $state.db.players, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+class $$CharactersTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CharactersTable,
+    Character,
+    $$CharactersTableFilterComposer,
+    $$CharactersTableOrderingComposer,
+    $$CharactersTableCreateCompanionBuilder,
+    $$CharactersTableUpdateCompanionBuilder,
+    (Character, $$CharactersTableReferences),
+    Character,
+    PrefetchHooks Function({bool playerId, bool playSessionPlayersRefs})> {
+  $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$CharactersTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$CharactersTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> playerId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> url = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              CharactersCompanion(
+            id: id,
+            playerId: playerId,
+            name: name,
+            url: url,
+            imagePath: imagePath,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int playerId,
+            required String name,
+            Value<String?> url = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+          }) =>
+              CharactersCompanion.insert(
+            id: id,
+            playerId: playerId,
+            name: name,
+            url: url,
+            imagePath: imagePath,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$CharactersTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {playerId = false, playSessionPlayersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (playSessionPlayersRefs) db.playSessionPlayers
+              ],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (playerId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.playerId,
+                    referencedTable:
+                        $$CharactersTableReferences._playerIdTable(db),
+                    referencedColumn:
+                        $$CharactersTableReferences._playerIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (playSessionPlayersRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$CharactersTableReferences
+                            ._playSessionPlayersRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CharactersTableReferences(db, table, p0)
+                                .playSessionPlayersRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.characterId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$CharactersTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CharactersTable,
+    Character,
+    $$CharactersTableFilterComposer,
+    $$CharactersTableOrderingComposer,
+    $$CharactersTableCreateCompanionBuilder,
+    $$CharactersTableUpdateCompanionBuilder,
+    (Character, $$CharactersTableReferences),
+    Character,
+    PrefetchHooks Function({bool playerId, bool playSessionPlayersRefs})>;
 typedef $$PlaySessionPlayersTableCreateCompanionBuilder
     = PlaySessionPlayersCompanion Function({
   required int playSessionId,
   required int playerId,
+  Value<int?> characterId,
   Value<int> rowid,
 });
 typedef $$PlaySessionPlayersTableUpdateCompanionBuilder
     = PlaySessionPlayersCompanion Function({
   Value<int> playSessionId,
   Value<int> playerId,
+  Value<int?> characterId,
   Value<int> rowid,
 });
 
@@ -3735,6 +4492,20 @@ final class $$PlaySessionPlayersTableReferences extends BaseReferences<
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias($_aliasNameGenerator(
+          db.playSessionPlayers.characterId, db.characters.id));
+
+  $$CharactersTableProcessedTableManager? get characterId {
+    if ($_item.characterId == null) return null;
+    final manager = $$CharactersTableTableManager($_db, $_db.characters)
+        .filter((f) => f.id($_item.characterId!));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 }
 
 class $$PlaySessionPlayersTableFilterComposer
@@ -3761,6 +4532,18 @@ class $$PlaySessionPlayersTableFilterComposer
         builder: (joinBuilder, parentComposers) => $$PlayersTableFilterComposer(
             ComposerState(
                 $state.db, $state.db.players, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.characterId,
+        referencedTable: $state.db.characters,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$CharactersTableFilterComposer(ComposerState($state.db,
+                $state.db.characters, joinBuilder, parentComposers)));
     return composer;
   }
 }
@@ -3791,6 +4574,18 @@ class $$PlaySessionPlayersTableOrderingComposer
                 $state.db, $state.db.players, joinBuilder, parentComposers)));
     return composer;
   }
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.characterId,
+        referencedTable: $state.db.characters,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder, parentComposers) =>
+            $$CharactersTableOrderingComposer(ComposerState($state.db,
+                $state.db.characters, joinBuilder, parentComposers)));
+    return composer;
+  }
 }
 
 class $$PlaySessionPlayersTableTableManager extends RootTableManager<
@@ -3803,7 +4598,8 @@ class $$PlaySessionPlayersTableTableManager extends RootTableManager<
     $$PlaySessionPlayersTableUpdateCompanionBuilder,
     (PlaySessionPlayer, $$PlaySessionPlayersTableReferences),
     PlaySessionPlayer,
-    PrefetchHooks Function({bool playSessionId, bool playerId})> {
+    PrefetchHooks Function(
+        {bool playSessionId, bool playerId, bool characterId})> {
   $$PlaySessionPlayersTableTableManager(
       _$AppDatabase db, $PlaySessionPlayersTable table)
       : super(TableManagerState(
@@ -3816,21 +4612,25 @@ class $$PlaySessionPlayersTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> playSessionId = const Value.absent(),
             Value<int> playerId = const Value.absent(),
+            Value<int?> characterId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PlaySessionPlayersCompanion(
             playSessionId: playSessionId,
             playerId: playerId,
+            characterId: characterId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required int playSessionId,
             required int playerId,
+            Value<int?> characterId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PlaySessionPlayersCompanion.insert(
             playSessionId: playSessionId,
             playerId: playerId,
+            characterId: characterId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -3839,7 +4639,8 @@ class $$PlaySessionPlayersTableTableManager extends RootTableManager<
                     $$PlaySessionPlayersTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({playSessionId = false, playerId = false}) {
+          prefetchHooksCallback: (
+              {playSessionId = false, playerId = false, characterId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -3877,6 +4678,17 @@ class $$PlaySessionPlayersTableTableManager extends RootTableManager<
                         .id,
                   ) as T;
                 }
+                if (characterId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.characterId,
+                    referencedTable: $$PlaySessionPlayersTableReferences
+                        ._characterIdTable(db),
+                    referencedColumn: $$PlaySessionPlayersTableReferences
+                        ._characterIdTable(db)
+                        .id,
+                  ) as T;
+                }
 
                 return state;
               },
@@ -3898,7 +4710,8 @@ typedef $$PlaySessionPlayersTableProcessedTableManager = ProcessedTableManager<
     $$PlaySessionPlayersTableUpdateCompanionBuilder,
     (PlaySessionPlayer, $$PlaySessionPlayersTableReferences),
     PlaySessionPlayer,
-    PrefetchHooks Function({bool playSessionId, bool playerId})>;
+    PrefetchHooks Function(
+        {bool playSessionId, bool playerId, bool characterId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3914,6 +4727,8 @@ class $AppDatabaseManager {
       $$PlayersTableTableManager(_db, _db.players);
   $$PlaySessionsTableTableManager get playSessions =>
       $$PlaySessionsTableTableManager(_db, _db.playSessions);
+  $$CharactersTableTableManager get characters =>
+      $$CharactersTableTableManager(_db, _db.characters);
   $$PlaySessionPlayersTableTableManager get playSessionPlayers =>
       $$PlaySessionPlayersTableTableManager(_db, _db.playSessionPlayers);
 }

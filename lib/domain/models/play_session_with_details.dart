@@ -25,8 +25,14 @@ class PlaySessionWithDetails {
   /// 削除されたシナリオの場合の表示テキスト
   String get scenarioDisplayTitle => scenarioTitle ?? '削除されたシナリオ';
 
-  /// カンマ区切りのプレイヤー名
+  /// カンマ区切りのプレイヤー名（キャラクター名含む）
   String get playerNamesDisplay {
+    if (players.isEmpty) return '';
+    return players.map((p) => p.displayName).join('、');
+  }
+
+  /// プレイヤー名のみ（キャラクター名なし）
+  String get playerNamesOnlyDisplay {
     if (players.isEmpty) return '';
     return players.map((p) => p.name).join('、');
   }

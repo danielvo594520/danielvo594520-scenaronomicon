@@ -12,6 +12,7 @@ import 'tables/scenario_tags_table.dart';
 import 'tables/players_table.dart';
 import 'tables/play_sessions_table.dart';
 import 'tables/play_session_players_table.dart';
+import 'tables/characters_table.dart';
 
 part 'database.g.dart';
 
@@ -23,6 +24,7 @@ part 'database.g.dart';
   Players,
   PlaySessions,
   PlaySessionPlayers,
+  Characters,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -30,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -42,6 +44,12 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(players);
             await m.createTable(playSessions);
             await m.createTable(playSessionPlayers);
+          }
+          if (from < 3) {
+            await m.createTable(characters);
+            await customStatement(
+              'ALTER TABLE play_session_players ADD COLUMN character_id INTEGER REFERENCES characters(id)',
+            );
           }
         },
         beforeOpen: (details) async {

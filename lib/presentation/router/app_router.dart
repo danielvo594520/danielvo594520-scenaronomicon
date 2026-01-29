@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../screens/app_shell.dart';
+import '../screens/character/character_detail_screen.dart';
+import '../screens/character/character_form_screen.dart';
+import '../screens/character/character_list_screen.dart';
 import '../screens/play_session/play_session_form_screen.dart';
 import '../screens/play_session/play_session_list_screen.dart';
 import '../screens/player/player_detail_screen.dart';
@@ -155,6 +158,62 @@ final appRouter = GoRouter(
                               int.parse(state.pathParameters['id']!),
                         ),
                       ),
+                    ),
+                    // キャラクター関連ルート
+                    GoRoute(
+                      path: 'characters',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      pageBuilder: (context, state) => _fadeTransitionPage(
+                        state: state,
+                        child: CharacterListScreen(
+                          playerId:
+                              int.parse(state.pathParameters['id']!),
+                        ),
+                      ),
+                      routes: [
+                        GoRoute(
+                          path: 'new',
+                          parentNavigatorKey: _rootNavigatorKey,
+                          pageBuilder: (context, state) =>
+                              _fadeTransitionPage(
+                            state: state,
+                            child: CharacterFormScreen(
+                              playerId:
+                                  int.parse(state.pathParameters['id']!),
+                            ),
+                          ),
+                        ),
+                        GoRoute(
+                          path: ':characterId',
+                          parentNavigatorKey: _rootNavigatorKey,
+                          pageBuilder: (context, state) =>
+                              _fadeTransitionPage(
+                            state: state,
+                            child: CharacterDetailScreen(
+                              playerId:
+                                  int.parse(state.pathParameters['id']!),
+                              characterId: int.parse(
+                                  state.pathParameters['characterId']!),
+                            ),
+                          ),
+                          routes: [
+                            GoRoute(
+                              path: 'edit',
+                              parentNavigatorKey: _rootNavigatorKey,
+                              pageBuilder: (context, state) =>
+                                  _fadeTransitionPage(
+                                state: state,
+                                child: CharacterFormScreen(
+                                  playerId: int.parse(
+                                      state.pathParameters['id']!),
+                                  characterId: int.parse(
+                                      state.pathParameters['characterId']!),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),

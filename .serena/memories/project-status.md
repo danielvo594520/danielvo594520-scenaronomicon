@@ -44,9 +44,10 @@
   - プレイ記録削除→play_session_playersのレコード削除
 
 ### DB スキーマ
-- **schemaVersion**: 2
+- **schemaVersion**: 3
 - v1→v2 マイグレーション: players, play_sessions, play_session_players テーブル追加
-- テーブル: systems, tags, scenarios, scenario_tags, players, play_sessions, play_session_players
+- v2→v3 マイグレーション: characters テーブル追加、play_session_players に character_id カラム追加
+- テーブル: systems, tags, scenarios, scenario_tags, players, play_sessions, play_session_players, characters
 
 ### 実装済み画面
 - シナリオ: 一覧, 詳細(プレイ記録セクション付き), フォーム
@@ -109,3 +110,30 @@
 - ファイル名はUUID v4で生成、アプリ専用ディレクトリ（getApplicationDocumentsDirectory/images/）に保存
 - シナリオ削除時にthumbnailPathのファイルも物理削除
 - 画像更新時に古い画像ファイルも削除（replaceパターン）
+
+### キャラクター機能（feature/add-character-feature）で追加したファイル
+- テーブル: characters_table.dart
+- モデル: character.dart, character_with_stats.dart, player_character_pair.dart
+- リポジトリ: character_repository.dart
+- プロバイダー: character_provider.dart
+- ウィジェット: character_thumbnail.dart, character_card.dart, character_dropdown.dart, player_character_select.dart
+- 画面: character_list_screen.dart, character_detail_screen.dart, character_form_screen.dart
+
+### キャラクター機能で変更したファイル
+- database.dart: Characters追加、schemaVersion 3、マイグレーション追加
+- play_session_players_table.dart: characterId カラム追加
+- player_with_stats.dart: PlayerInfo にキャラクター情報追加（characterId, characterName, characterImagePath）
+- play_session_with_details.dart: playerNamesDisplay でキャラクター名表示対応
+- play_session_repository.dart: create/update でPlayerCharacterPair対応、getPlayerCharacterPairs()追加
+- play_session_provider.dart: playerCharacterPairs対応、playSessionPlayerCharacterPairsProvider追加
+- player_provider.dart: deletePlayer でキャラクター画像も削除
+- database_provider.dart: characterRepositoryProvider追加
+- player_detail_screen.dart: キャラクターセクション追加
+- play_session_form_screen.dart: PlayerCharacterSelect統合
+- app_router.dart: キャラクター関連ルート追加（/players/:id/characters系）
+
+### キャラクター機能 技術的注意事項
+- Character モデルは Drift生成の Character と名前衝突するため、import時に `as model` で回避
+- キャラクター削除時は play_session_players.characterId を NULL に（カスケード削除ではない）
+- プレイヤー削除時は先にそのプレイヤーの全キャラクターを削除（画像も削除）
+- 画像保存はシナリオと同じ仕組みを再利用（ImageStorageService）

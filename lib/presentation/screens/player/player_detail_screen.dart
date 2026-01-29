@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../providers/character_provider.dart';
 import '../../providers/player_provider.dart';
+import '../../widgets/character_card.dart';
 import '../../widgets/delete_confirm_dialog.dart';
 
 /// プレイヤー詳細画面
@@ -16,6 +18,7 @@ class PlayerDetailScreen extends ConsumerWidget {
     final playerAsync = ref.watch(playerDetailProvider(id));
     final sessionCountAsync = ref.watch(playerSessionCountProvider(id));
     final playedScenariosAsync = ref.watch(playerPlayedScenariosProvider(id));
+    final charactersAsync = ref.watch(characterListProvider(id));
 
     return Scaffold(
       appBar: AppBar(
@@ -106,6 +109,70 @@ class PlayerDetailScreen extends ConsumerWidget {
               const Divider(),
               const SizedBox(height: 8),
 
+              // キャラクターセクション
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'キャラクター',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  TextButton.icon(
+                    onPressed: () =>
+                        context.push('/players/$id/characters'),
+                    icon: const Icon(Icons.list, size: 18),
+                    label: const Text('すべて表示'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+
+              charactersAsync.when(
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
+                error: (_, __) => const Text('読み込みに失敗しました'),
+                data: (characters) {
+                  if (characters.isEmpty) {
+                    return _buildEmptyCharacterState(context);
+                  }
+                  // 最大3件表示
+                  final displayCharacters = characters.take(3).toList();
+                  return Column(
+                    children: [
+                      ...displayCharacters.map((character) {
+                        return CharacterCard(
+                          character: character,
+                          onTap: () => context.push(
+                            '/players/$id/characters/${character.id}',
+                          ),
+                        );
+                      }),
+                      if (characters.length > 3)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            '他 ${characters.length - 3} 件',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+
+              const Divider(),
+              const SizedBox(height: 8),
+
               // 参加したシナリオ
               Text(
                 '参加したシナリオ',
@@ -143,6 +210,35 @@ class PlayerDetailScreen extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyCharacterState(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Icon(
+              Icons.person_add,
+              size: 32,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'キャラクターがありません',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.tonalIcon(
+              onPressed: () =>
+                  GoRouter.of(context).push('/players/$id/characters/new'),
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('追加'),
+            ),
+          ],
         ),
       ),
     );

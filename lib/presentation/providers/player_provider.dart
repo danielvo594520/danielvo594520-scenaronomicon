@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/services/image_storage_service.dart';
 import '../../data/database/database.dart';
 import '../../domain/models/player_with_stats.dart';
 import 'database_provider.dart';
@@ -40,6 +41,13 @@ class PlayerListNotifier extends AsyncNotifier<List<PlayerWithStats>> {
   }
 
   Future<void> deletePlayer(int id) async {
+    // キャラクターの画像パスを取得して削除
+    final imagePaths =
+        await ref.read(characterRepositoryProvider).deleteAllByPlayerId(id);
+    for (final path in imagePaths) {
+      await ImageStorageService().deleteImage(path);
+    }
+
     await ref.read(playerRepositoryProvider).delete(id);
     ref.invalidateSelf();
   }
