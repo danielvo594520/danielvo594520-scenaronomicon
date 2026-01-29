@@ -6,6 +6,7 @@ import '../../providers/character_provider.dart';
 import '../../providers/player_provider.dart';
 import '../../widgets/character_card.dart';
 import '../../widgets/delete_confirm_dialog.dart';
+import '../../widgets/player_thumbnail.dart';
 
 /// プレイヤー詳細画面
 class PlayerDetailScreen extends ConsumerWidget {
@@ -45,16 +46,10 @@ class PlayerDetailScreen extends ConsumerWidget {
               // アイコンと名前
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color:
-                          Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+                  PlayerThumbnail(
+                    imagePath: player.imagePath,
+                    size: 64,
+                    borderRadius: 32,
                   ),
                   const SizedBox(width: 16),
                   Expanded(

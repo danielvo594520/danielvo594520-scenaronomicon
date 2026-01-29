@@ -28,6 +28,7 @@ class PlayerRepository {
         id: player.id,
         name: player.name,
         note: player.note,
+        imagePath: player.imagePath,
         sessionCount: sessionCounts[player.id] ?? 0,
         createdAt: player.createdAt,
         updatedAt: player.updatedAt,
@@ -79,12 +80,14 @@ class PlayerRepository {
   Future<int> create({
     required String name,
     String? note,
+    String? imagePath,
   }) {
     final now = DateTime.now();
     return _db.into(_db.players).insert(
           PlayersCompanion.insert(
             name: name,
             note: Value(note),
+            imagePath: Value(imagePath),
             createdAt: now,
             updatedAt: now,
           ),
@@ -96,11 +99,13 @@ class PlayerRepository {
     required int id,
     required String name,
     String? note,
+    String? imagePath,
   }) {
     return (_db.update(_db.players)..where((p) => p.id.equals(id))).write(
       PlayersCompanion(
         name: Value(name),
         note: Value(note),
+        imagePath: Value(imagePath),
         updatedAt: Value(DateTime.now()),
       ),
     );
