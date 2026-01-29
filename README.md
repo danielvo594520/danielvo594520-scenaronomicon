@@ -4,50 +4,46 @@
 
 TRPGのゲームマスター向けシナリオ管理Androidアプリ。
 
-シナリオの管理、プレイ記録、プレイヤー情報をローカルで管理します。
+## 主な機能
+
+- **シナリオ管理** - シナリオの登録・編集・削除、ステータス管理（未読→準備中→回した等）
+- **プレイ記録** - いつ・誰と・どのシナリオを遊んだかを記録
+- **プレイヤー管理** - 一緒に遊ぶプレイヤーの情報を管理
+- **キャラクター管理** - プレイヤーごとのキャラクター情報を管理
+- **タグ・システム管理** - シナリオの分類（CoC, マダミス等）やジャンルタグの設定
+
+## インストール
+
+[Releases ページ](https://github.com/danielvo594520/danielvo594520-scenaronomicon/releases) から最新のAPKをダウンロードしてインストールしてください。
+
+## 使い方
+
+### シナリオを登録する
+1. シナリオ一覧画面で「+」ボタンをタップ
+2. タイトル、システム、タグ、ステータス等を入力
+3. 「保存」で登録完了
+
+### プレイ記録をつける
+1. プレイ記録画面で「+」ボタンをタップ
+2. シナリオ、プレイ日、KP、参加プレイヤーを選択
+3. 「保存」で記録完了
+
+### プレイヤーを登録する
+1. プレイヤー画面で「+」ボタンをタップ
+2. 名前を入力して「保存」
 
 ## 技術スタック
 
 | 項目 | 技術 |
 |------|------|
 | フレームワーク | Flutter 3.24.0 |
-| バージョン管理 | fvm |
 | ローカルDB | Drift (SQLite) |
 | 状態管理 | Riverpod |
-| ルーティング | go_router |
-| UI | Material Design 3 |
 
-## セットアップ
+## 開発者向け
 
-```bash
-# fvm でFlutterバージョンを設定
-fvm install 3.24.0
-fvm use 3.24.0
+開発環境のセットアップや詳細は [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) を参照してください。
 
-# 依存関係のインストール
-fvm flutter pub get
+## ライセンス
 
-# コード生成（Driftテーブル変更時）
-fvm flutter pub run build_runner build --delete-conflicting-outputs
-
-# デバッグ実行
-fvm flutter run
-
-# APKビルド
-fvm flutter build apk --debug
-```
-
-## 開発フェーズ
-
-| フェーズ | 内容 | 状態 |
-|----------|------|------|
-| Phase 1 | シナリオCRUD、システム/タグ管理 | 完了 |
-| Phase 2 | プレイ記録、プレイヤー管理 | 完了 |
-| Phase 3 | 検索・フィルタ・ソート | 完了 |
-| Phase 4 | 画像対応、UI改善 | 完了 |
-
-詳細は [docs/](docs/) を参照。
-
-## リリース履歴
-
-最新のリリースとAPKダウンロードは [Releases ページ](https://github.com/danielvo594520/danielvo594520-scenaronomicon/releases) を参照してください。
+[MIT License](LICENSE)
