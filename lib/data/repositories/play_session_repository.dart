@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/models/play_session_with_details.dart';
+import '../../domain/models/player_character_pair.dart';
 import '../../domain/models/player_with_stats.dart';
 import '../database/database.dart';
 
@@ -22,11 +23,15 @@ class PlaySessionRepository {
 
     final sessionRows = await sessionQuery.get();
 
-    // 2. 全プレイヤー関連を取得（N+1回避）
+    // 2. 全プレイヤー関連を取得（キャラクター情報含む、N+1回避）
     final playerQuery = _db.select(_db.playSessionPlayers).join([
       innerJoin(
         _db.players,
         _db.players.id.equalsExp(_db.playSessionPlayers.playerId),
+      ),
+      leftOuterJoin(
+        _db.characters,
+        _db.characters.id.equalsExp(_db.playSessionPlayers.characterId),
       ),
     ]);
     final playerRows = await playerQuery.get();
@@ -34,11 +39,18 @@ class PlaySessionRepository {
     // セッションIDでグルーピング
     final playersBySession = <int, List<PlayerInfo>>{};
     for (final row in playerRows) {
-      final sessionId = row.readTable(_db.playSessionPlayers).playSessionId;
+      final sessionPlayer = row.readTable(_db.playSessionPlayers);
       final player = row.readTable(_db.players);
-      playersBySession
-          .putIfAbsent(sessionId, () => [])
-          .add(PlayerInfo(id: player.id, name: player.name));
+      final character = row.readTableOrNull(_db.characters);
+      playersBySession.putIfAbsent(sessionPlayer.playSessionId, () => []).add(
+            PlayerInfo(
+              id: player.id,
+              name: player.name,
+              characterId: character?.id,
+              characterName: character?.name,
+              characterImagePath: character?.imagePath,
+            ),
+          );
     }
 
     // 3. 結合
@@ -73,12 +85,22 @@ class PlaySessionRepository {
           _db.players,
           _db.players.id.equalsExp(_db.playSessionPlayers.playerId),
         ),
+        leftOuterJoin(
+          _db.characters,
+          _db.characters.id.equalsExp(_db.playSessionPlayers.characterId),
+        ),
       ])
         ..where(_db.playSessionPlayers.playSessionId.equals(session.id));
 
       final playerRows = await playerQuery.get();
-      final playerNames =
-          playerRows.map((r) => r.readTable(_db.players).name).join('、');
+      final playerNames = playerRows.map((r) {
+        final player = r.readTable(_db.players);
+        final character = r.readTableOrNull(_db.characters);
+        if (character != null) {
+          return '${player.name}（${character.name}）';
+        }
+        return player.name;
+      }).join('、');
 
       results.add(PlaySessionSummary(
         id: session.id,
@@ -105,22 +127,31 @@ class PlaySessionRepository {
     final session = row.readTable(_db.playSessions);
     final scenario = row.readTableOrNull(_db.scenarios);
 
-    // プレイヤー取得
+    // プレイヤー取得（キャラクター情報含む）
     final playerQuery = _db.select(_db.playSessionPlayers).join([
       innerJoin(
         _db.players,
         _db.players.id.equalsExp(_db.playSessionPlayers.playerId),
       ),
+      leftOuterJoin(
+        _db.characters,
+        _db.characters.id.equalsExp(_db.playSessionPlayers.characterId),
+      ),
     ])
       ..where(_db.playSessionPlayers.playSessionId.equals(id));
 
     final playerRows = await playerQuery.get();
-    final players = playerRows
-        .map((r) {
-          final player = r.readTable(_db.players);
-          return PlayerInfo(id: player.id, name: player.name);
-        })
-        .toList();
+    final players = playerRows.map((r) {
+      final player = r.readTable(_db.players);
+      final character = r.readTableOrNull(_db.characters);
+      return PlayerInfo(
+        id: player.id,
+        name: player.name,
+        characterId: character?.id,
+        characterName: character?.name,
+        characterImagePath: character?.imagePath,
+      );
+    }).toList();
 
     return PlaySessionWithDetails(
       id: session.id,
@@ -134,6 +165,20 @@ class PlaySessionRepository {
     );
   }
 
+  /// プレイ記録の参加者情報（プレイヤーID + キャラクターID）を取得
+  Future<List<PlayerCharacterPair>> getPlayerCharacterPairs(
+      int sessionId) async {
+    final query = _db.select(_db.playSessionPlayers)
+      ..where((p) => p.playSessionId.equals(sessionId));
+    final rows = await query.get();
+    return rows
+        .map((r) => PlayerCharacterPair(
+              playerId: r.playerId,
+              characterId: r.characterId,
+            ))
+        .toList();
+  }
+
   /// シナリオのプレイ回数
   Future<int> getPlayCount(int scenarioId) async {
     final result = await (_db.select(_db.playSessions)
@@ -142,12 +187,12 @@ class PlaySessionRepository {
     return result.length;
   }
 
-  /// プレイ記録作成（プレイヤー関連付け含む）
+  /// プレイ記録作成（プレイヤー・キャラクター関連付け含む）
   Future<int> create({
     int? scenarioId,
     required DateTime playedAt,
     String? memo,
-    List<int> playerIds = const [],
+    List<PlayerCharacterPair> playerCharacterPairs = const [],
   }) async {
     return _db.transaction(() async {
       final now = DateTime.now();
@@ -161,11 +206,12 @@ class PlaySessionRepository {
             ),
           );
 
-      for (final playerId in playerIds) {
+      for (final pair in playerCharacterPairs) {
         await _db.into(_db.playSessionPlayers).insert(
               PlaySessionPlayersCompanion.insert(
                 playSessionId: sessionId,
-                playerId: playerId,
+                playerId: pair.playerId,
+                characterId: Value(pair.characterId),
               ),
             );
       }
@@ -174,17 +220,16 @@ class PlaySessionRepository {
     });
   }
 
-  /// プレイ記録更新（プレイヤー関連付けの再設定含む）
+  /// プレイ記録更新（プレイヤー・キャラクター関連付けの再設定含む）
   Future<void> update({
     required int id,
     int? scenarioId,
     required DateTime playedAt,
     String? memo,
-    List<int> playerIds = const [],
+    List<PlayerCharacterPair> playerCharacterPairs = const [],
   }) async {
     await _db.transaction(() async {
-      await (_db.update(_db.playSessions)..where((s) => s.id.equals(id)))
-          .write(
+      await (_db.update(_db.playSessions)..where((s) => s.id.equals(id))).write(
         PlaySessionsCompanion(
           scenarioId: Value(scenarioId),
           playedAt: Value(playedAt),
@@ -193,16 +238,17 @@ class PlaySessionRepository {
         ),
       );
 
-      // プレイヤーの再割当: 既存を削除 → 新規挿入
+      // プレイヤー・キャラクターの再割当: 既存を削除 → 新規挿入
       await (_db.delete(_db.playSessionPlayers)
             ..where((p) => p.playSessionId.equals(id)))
           .go();
 
-      for (final playerId in playerIds) {
+      for (final pair in playerCharacterPairs) {
         await _db.into(_db.playSessionPlayers).insert(
               PlaySessionPlayersCompanion.insert(
                 playSessionId: id,
-                playerId: playerId,
+                playerId: pair.playerId,
+                characterId: Value(pair.characterId),
               ),
             );
       }

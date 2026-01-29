@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/database/database.dart';
+import '../../data/repositories/character_repository.dart';
 import '../../data/repositories/player_repository.dart';
 import '../../data/repositories/play_session_repository.dart';
 import '../../data/repositories/scenario_repository.dart';
@@ -29,4 +30,8 @@ final playerRepositoryProvider = Provider<PlayerRepository>((ref) {
 
 final playSessionRepositoryProvider = Provider<PlaySessionRepository>((ref) {
   return PlaySessionRepository(ref.watch(appDatabaseProvider));
+});
+
+final characterRepositoryProvider = Provider<CharacterRepository>((ref) {
+  return CharacterRepository(ref.watch(appDatabaseProvider));
 });

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../domain/models/player_character_pair.dart';
+import '../../providers/character_provider.dart';
 import '../../providers/play_session_provider.dart';
 import '../../providers/player_provider.dart';
-import '../../widgets/player_multi_select.dart';
+import '../../widgets/player_character_select.dart';
 import '../../widgets/scenario_search_dropdown.dart';
 
 /// プレイ記録追加/編集画面
@@ -31,7 +33,7 @@ class _PlaySessionFormScreenState
 
   int? _selectedScenarioId;
   DateTime _playedAt = DateTime.now();
-  Set<int> _selectedPlayerIds = {};
+  List<PlayerCharacterPair> _selectedPairs = [];
   bool _isInitialized = false;
   bool _isSaving = false;
 
@@ -53,16 +55,23 @@ class _PlaySessionFormScreenState
 
   void _initializeFromSession() {
     if (_isInitialized || !_isEdit) return;
+
+    // セッション詳細とペア情報の両方を取得
     final sessionAsync =
         ref.read(playSessionDetailProvider(widget.sessionId!));
+    final pairsAsync =
+        ref.read(playSessionPlayerCharacterPairsProvider(widget.sessionId!));
+
     sessionAsync.whenData((session) {
-      if (_isInitialized) return;
-      _selectedScenarioId = session.scenarioId;
-      _playedAt = session.playedAt;
-      _memoController.text = session.memo ?? '';
-      _selectedPlayerIds = session.players.map((p) => p.id).toSet();
-      _isInitialized = true;
-      if (mounted) setState(() {});
+      pairsAsync.whenData((pairs) {
+        if (_isInitialized) return;
+        _selectedScenarioId = session.scenarioId;
+        _playedAt = session.playedAt;
+        _memoController.text = session.memo ?? '';
+        _selectedPairs = pairs;
+        _isInitialized = true;
+        if (mounted) setState(() {});
+      });
     });
   }
 
@@ -70,6 +79,7 @@ class _PlaySessionFormScreenState
   Widget build(BuildContext context) {
     if (_isEdit) {
       ref.watch(playSessionDetailProvider(widget.sessionId!));
+      ref.watch(playSessionPlayerCharacterPairsProvider(widget.sessionId!));
       _initializeFromSession();
     }
 
@@ -108,11 +118,10 @@ class _PlaySessionFormScreenState
               ),
               const SizedBox(height: 16),
 
-              // プレイヤー選択
-              PlayerMultiSelect(
-                selectedPlayerIds: _selectedPlayerIds,
-                onChanged: (value) =>
-                    setState(() => _selectedPlayerIds = value),
+              // プレイヤー・キャラクター選択
+              PlayerCharacterSelect(
+                selectedPairs: _selectedPairs,
+                onChanged: (value) => setState(() => _selectedPairs = value),
               ),
               const SizedBox(height: 16),
 
@@ -175,15 +184,17 @@ class _PlaySessionFormScreenState
               scenarioId: _selectedScenarioId,
               playedAt: _playedAt,
               memo: memo,
-              playerIds: _selectedPlayerIds.toList(),
+              playerCharacterPairs: _selectedPairs,
             );
         ref.invalidate(playSessionDetailProvider(widget.sessionId!));
+        ref.invalidate(
+            playSessionPlayerCharacterPairsProvider(widget.sessionId!));
       } else {
         await ref.read(playSessionListProvider.notifier).add(
               scenarioId: _selectedScenarioId,
               playedAt: _playedAt,
               memo: memo,
-              playerIds: _selectedPlayerIds.toList(),
+              playerCharacterPairs: _selectedPairs,
             );
       }
 
@@ -196,9 +207,15 @@ class _PlaySessionFormScreenState
 
       // プレイヤーの参加数を更新
       ref.invalidate(playerListProvider);
-      for (final playerId in _selectedPlayerIds) {
-        ref.invalidate(playerSessionCountProvider(playerId));
-        ref.invalidate(playerPlayedScenariosProvider(playerId));
+      for (final pair in _selectedPairs) {
+        ref.invalidate(playerSessionCountProvider(pair.playerId));
+        ref.invalidate(playerPlayedScenariosProvider(pair.playerId));
+        // キャラクターの統計も更新
+        ref.invalidate(characterListProvider(pair.playerId));
+        if (pair.characterId != null) {
+          ref.invalidate(characterSessionCountProvider(pair.characterId!));
+          ref.invalidate(characterPlayedSessionsProvider(pair.characterId!));
+        }
       }
 
       if (mounted) {
