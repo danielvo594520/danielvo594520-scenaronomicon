@@ -11,12 +11,10 @@ class KpSelect extends ConsumerWidget {
   const KpSelect({
     super.key,
     required this.selectedKpIds,
-    required this.excludedPlayerIds,
     required this.onChanged,
   });
 
   final List<int> selectedKpIds;
-  final List<int> excludedPlayerIds;
   final ValueChanged<List<int>> onChanged;
 
   @override
@@ -52,18 +50,22 @@ class KpSelect extends ConsumerWidget {
           error: (_, __) => const Text('プレイヤーの読み込みに失敗しました'),
           data: (players) {
             if (selectedKpIds.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withAlpha(128),
+              return InkWell(
+                onTap: () => _showKpSelectDialog(context, ref),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withAlpha(128),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    'KPを選択してください',
-                    style: TextStyle(color: Colors.grey[500]),
+                  child: Center(
+                    child: Text(
+                      'タップしてKPを選択',
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
                   ),
                 ),
               );
@@ -100,10 +102,9 @@ class KpSelect extends ConsumerWidget {
   void _showKpSelectDialog(BuildContext context, WidgetRef ref) {
     final playersAsync = ref.read(playerListProvider);
     playersAsync.whenData((players) {
-      // 既に選択済みのKPと参加プレイヤーを除外
+      // 既に選択済みのKPを除外（参加プレイヤーとの重複は許可）
       final availablePlayers = players
-          .where((p) =>
-              !selectedKpIds.contains(p.id) && !excludedPlayerIds.contains(p.id))
+          .where((p) => !selectedKpIds.contains(p.id))
           .toList();
 
       if (availablePlayers.isEmpty) {

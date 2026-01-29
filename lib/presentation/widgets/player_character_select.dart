@@ -13,12 +13,10 @@ class PlayerCharacterSelect extends ConsumerStatefulWidget {
   const PlayerCharacterSelect({
     super.key,
     required this.selectedPairs,
-    this.excludedPlayerIds = const [],
     required this.onChanged,
   });
 
   final List<PlayerCharacterPair> selectedPairs;
-  final List<int> excludedPlayerIds;
   final ValueChanged<List<PlayerCharacterPair>> onChanged;
 
   @override
@@ -54,18 +52,22 @@ class _PlayerCharacterSelectState extends ConsumerState<PlayerCharacterSelect> {
           error: (_, __) => const Text('プレイヤーの読み込みに失敗しました'),
           data: (players) {
             if (widget.selectedPairs.isEmpty) {
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withAlpha(128),
+              return InkWell(
+                onTap: () => _showPlayerSelectDialog(context),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withAlpha(128),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    'プレイヤーを選択してください',
-                    style: TextStyle(color: Colors.grey[500]),
+                  child: Center(
+                    child: Text(
+                      'タップしてプレイヤーを選択',
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
                   ),
                 ),
               );
@@ -113,11 +115,10 @@ class _PlayerCharacterSelectState extends ConsumerState<PlayerCharacterSelect> {
   void _showPlayerSelectDialog(BuildContext context) {
     final playersAsync = ref.read(playerListProvider);
     playersAsync.whenData((players) {
-      // 既に選択済みのプレイヤーと除外プレイヤー（KP）を除外
+      // 既に選択済みのプレイヤーを除外（KPとの重複は許可）
       final availablePlayers = players
           .where((p) =>
-              !widget.selectedPairs.any((pair) => pair.playerId == p.id) &&
-              !widget.excludedPlayerIds.contains(p.id))
+              !widget.selectedPairs.any((pair) => pair.playerId == p.id))
           .toList();
 
       if (availablePlayers.isEmpty) {

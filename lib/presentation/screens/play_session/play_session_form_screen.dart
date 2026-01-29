@@ -125,7 +125,6 @@ class _PlaySessionFormScreenState
               // KP選択
               KpSelect(
                 selectedKpIds: _selectedKpIds,
-                excludedPlayerIds: _selectedPairs.map((p) => p.playerId).toList(),
                 onChanged: (value) => setState(() => _selectedKpIds = value),
               ),
               const SizedBox(height: 16),
@@ -133,7 +132,6 @@ class _PlaySessionFormScreenState
               // プレイヤー・キャラクター選択
               PlayerCharacterSelect(
                 selectedPairs: _selectedPairs,
-                excludedPlayerIds: _selectedKpIds,
                 onChanged: (value) => setState(() => _selectedPairs = value),
               ),
               const SizedBox(height: 16),
