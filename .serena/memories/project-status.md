@@ -44,7 +44,7 @@
   - プレイ記録削除→play_session_playersのレコード削除
 
 ### DB スキーマ
-- **schemaVersion**: 3
+- **schemaVersion**: 7
 - v1→v2 マイグレーション: players, play_sessions, play_session_players テーブル追加
 - v2→v3 マイグレーション: characters テーブル追加、play_session_players に character_id カラム追加
 - テーブル: systems, tags, scenarios, scenario_tags, players, play_sessions, play_session_players, characters
@@ -137,3 +137,30 @@
 - キャラクター削除時は play_session_players.characterId を NULL に（カスケード削除ではない）
 - プレイヤー削除時は先にそのプレイヤーの全キャラクターを削除（画像も削除）
 - 画像保存はシナリオと同じ仕組みを再利用（ImageStorageService）
+
+### キャラクターシートURL情報取得機能（feature/character-sheet-fetch）で追加したファイル
+- サービス: lib/core/services/character_sheet/
+  - character_sheet_service.dart（抽象インターフェース）
+  - character_sheet_result.dart（取得結果モデル）
+  - character_sheet_service_factory.dart（サービスファクトリ）
+  - providers/charasheet_provider.dart（キャラクター保管所対応）
+  - providers/iachara_provider.dart（いあきゃら対応、WebView方式）
+- プロバイダー: character_sheet_provider.dart（CharacterSheetFetchNotifier）
+
+### キャラクターシートURL情報取得機能で変更したファイル
+- pubspec.yaml: http, webview_flutter パッケージ追加
+- characters_table.dart: hp, maxHp, mp, maxMp, san, maxSan, sourceService カラム追加
+- character.dart: ステータスフィールド追加、hasStats getter追加
+- character_with_stats.dart: ステータスフィールド追加、hasStats getter追加
+- character_repository.dart: create/update にステータスパラメータ追加
+- character_provider.dart: add/updateCharacter にステータスパラメータ追加
+- database.dart: schemaVersion 7、v6→v7 マイグレーション追加
+- character_form_screen.dart: URL横に「取得」ボタン、取得結果プレビュー、ステータス表示・保存
+- character_detail_screen.dart: ステータス情報セクション表示
+
+### キャラクターシートURL情報取得機能 技術的注意事項
+- キャラクター保管所: JSON API (`/{id}.json`) を使用、CoC用フィールドマッピング
+- いあきゃら: WebView方式で__NEXT_DATA__またはDOMからデータ抽出（SPA対応）
+- 対応サービス: キャラクター保管所、いあきゃら
+- ステータス情報: HP/MaxHP, MP/MaxMP, SAN/MaxSAN をnullableで保存
+- sourceService: データ取得元サービス名を保存（「キャラクター保管所」「いあきゃら」）

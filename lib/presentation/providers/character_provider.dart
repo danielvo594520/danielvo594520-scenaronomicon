@@ -24,6 +24,13 @@ class CharacterListNotifier
     required String name,
     String? url,
     File? imageFile,
+    int? hp,
+    int? maxHp,
+    int? mp,
+    int? maxMp,
+    int? san,
+    int? maxSan,
+    String? sourceService,
   }) async {
     String? imagePath;
     if (imageFile != null) {
@@ -35,6 +42,13 @@ class CharacterListNotifier
           name: name,
           url: url,
           imagePath: imagePath,
+          hp: hp,
+          maxHp: maxHp,
+          mp: mp,
+          maxMp: maxMp,
+          san: san,
+          maxSan: maxSan,
+          sourceService: sourceService,
         );
     ref.invalidateSelf();
   }
@@ -45,6 +59,13 @@ class CharacterListNotifier
     String? url,
     File? newImageFile,
     bool deleteImage = false,
+    int? hp,
+    int? maxHp,
+    int? mp,
+    int? maxMp,
+    int? san,
+    int? maxSan,
+    String? sourceService,
   }) async {
     String? imagePath;
 
@@ -63,6 +84,13 @@ class CharacterListNotifier
           name: name,
           url: url,
           imagePath: imagePath,
+          hp: hp,
+          maxHp: maxHp,
+          mp: mp,
+          maxMp: maxMp,
+          san: san,
+          maxSan: maxSan,
+          sourceService: sourceService,
         );
 
     // 古い画像を削除

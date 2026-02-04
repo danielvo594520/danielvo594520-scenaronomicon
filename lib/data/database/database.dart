@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -79,6 +79,30 @@ class AppDatabase extends _$AppDatabase {
             ''');
             await customStatement('DROP TABLE play_session_players');
             await customStatement('ALTER TABLE play_session_players_new RENAME TO play_session_players');
+          }
+          if (from < 7) {
+            // キャラクターにステータス情報カラムを追加
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN hp INTEGER',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN max_hp INTEGER',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN mp INTEGER',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN max_mp INTEGER',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN san INTEGER',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN max_san INTEGER',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN source_service TEXT',
+            );
           }
         },
         beforeOpen: (details) async {

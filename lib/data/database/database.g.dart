@@ -2077,6 +2077,42 @@ class $CharactersTable extends Characters
   late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
       'image_path', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _hpMeta = const VerificationMeta('hp');
+  @override
+  late final GeneratedColumn<int> hp = GeneratedColumn<int>(
+      'hp', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _maxHpMeta = const VerificationMeta('maxHp');
+  @override
+  late final GeneratedColumn<int> maxHp = GeneratedColumn<int>(
+      'max_hp', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _mpMeta = const VerificationMeta('mp');
+  @override
+  late final GeneratedColumn<int> mp = GeneratedColumn<int>(
+      'mp', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _maxMpMeta = const VerificationMeta('maxMp');
+  @override
+  late final GeneratedColumn<int> maxMp = GeneratedColumn<int>(
+      'max_mp', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sanMeta = const VerificationMeta('san');
+  @override
+  late final GeneratedColumn<int> san = GeneratedColumn<int>(
+      'san', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _maxSanMeta = const VerificationMeta('maxSan');
+  @override
+  late final GeneratedColumn<int> maxSan = GeneratedColumn<int>(
+      'max_san', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sourceServiceMeta =
+      const VerificationMeta('sourceService');
+  @override
+  late final GeneratedColumn<String> sourceService = GeneratedColumn<String>(
+      'source_service', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -2090,8 +2126,22 @@ class $CharactersTable extends Characters
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, playerId, name, url, imagePath, createdAt, updatedAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        playerId,
+        name,
+        url,
+        imagePath,
+        hp,
+        maxHp,
+        mp,
+        maxMp,
+        san,
+        maxSan,
+        sourceService,
+        createdAt,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2125,6 +2175,34 @@ class $CharactersTable extends Characters
       context.handle(_imagePathMeta,
           imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
     }
+    if (data.containsKey('hp')) {
+      context.handle(_hpMeta, hp.isAcceptableOrUnknown(data['hp']!, _hpMeta));
+    }
+    if (data.containsKey('max_hp')) {
+      context.handle(
+          _maxHpMeta, maxHp.isAcceptableOrUnknown(data['max_hp']!, _maxHpMeta));
+    }
+    if (data.containsKey('mp')) {
+      context.handle(_mpMeta, mp.isAcceptableOrUnknown(data['mp']!, _mpMeta));
+    }
+    if (data.containsKey('max_mp')) {
+      context.handle(
+          _maxMpMeta, maxMp.isAcceptableOrUnknown(data['max_mp']!, _maxMpMeta));
+    }
+    if (data.containsKey('san')) {
+      context.handle(
+          _sanMeta, san.isAcceptableOrUnknown(data['san']!, _sanMeta));
+    }
+    if (data.containsKey('max_san')) {
+      context.handle(_maxSanMeta,
+          maxSan.isAcceptableOrUnknown(data['max_san']!, _maxSanMeta));
+    }
+    if (data.containsKey('source_service')) {
+      context.handle(
+          _sourceServiceMeta,
+          sourceService.isAcceptableOrUnknown(
+              data['source_service']!, _sourceServiceMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -2156,6 +2234,20 @@ class $CharactersTable extends Characters
           .read(DriftSqlType.string, data['${effectivePrefix}url']),
       imagePath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
+      hp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}hp']),
+      maxHp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_hp']),
+      mp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}mp']),
+      maxMp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_mp']),
+      san: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}san']),
+      maxSan: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}max_san']),
+      sourceService: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_service']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -2175,6 +2267,13 @@ class Character extends DataClass implements Insertable<Character> {
   final String name;
   final String? url;
   final String? imagePath;
+  final int? hp;
+  final int? maxHp;
+  final int? mp;
+  final int? maxMp;
+  final int? san;
+  final int? maxSan;
+  final String? sourceService;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Character(
@@ -2183,6 +2282,13 @@ class Character extends DataClass implements Insertable<Character> {
       required this.name,
       this.url,
       this.imagePath,
+      this.hp,
+      this.maxHp,
+      this.mp,
+      this.maxMp,
+      this.san,
+      this.maxSan,
+      this.sourceService,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -2196,6 +2302,27 @@ class Character extends DataClass implements Insertable<Character> {
     }
     if (!nullToAbsent || imagePath != null) {
       map['image_path'] = Variable<String>(imagePath);
+    }
+    if (!nullToAbsent || hp != null) {
+      map['hp'] = Variable<int>(hp);
+    }
+    if (!nullToAbsent || maxHp != null) {
+      map['max_hp'] = Variable<int>(maxHp);
+    }
+    if (!nullToAbsent || mp != null) {
+      map['mp'] = Variable<int>(mp);
+    }
+    if (!nullToAbsent || maxMp != null) {
+      map['max_mp'] = Variable<int>(maxMp);
+    }
+    if (!nullToAbsent || san != null) {
+      map['san'] = Variable<int>(san);
+    }
+    if (!nullToAbsent || maxSan != null) {
+      map['max_san'] = Variable<int>(maxSan);
+    }
+    if (!nullToAbsent || sourceService != null) {
+      map['source_service'] = Variable<String>(sourceService);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -2211,6 +2338,18 @@ class Character extends DataClass implements Insertable<Character> {
       imagePath: imagePath == null && nullToAbsent
           ? const Value.absent()
           : Value(imagePath),
+      hp: hp == null && nullToAbsent ? const Value.absent() : Value(hp),
+      maxHp:
+          maxHp == null && nullToAbsent ? const Value.absent() : Value(maxHp),
+      mp: mp == null && nullToAbsent ? const Value.absent() : Value(mp),
+      maxMp:
+          maxMp == null && nullToAbsent ? const Value.absent() : Value(maxMp),
+      san: san == null && nullToAbsent ? const Value.absent() : Value(san),
+      maxSan:
+          maxSan == null && nullToAbsent ? const Value.absent() : Value(maxSan),
+      sourceService: sourceService == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceService),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2225,6 +2364,13 @@ class Character extends DataClass implements Insertable<Character> {
       name: serializer.fromJson<String>(json['name']),
       url: serializer.fromJson<String?>(json['url']),
       imagePath: serializer.fromJson<String?>(json['imagePath']),
+      hp: serializer.fromJson<int?>(json['hp']),
+      maxHp: serializer.fromJson<int?>(json['maxHp']),
+      mp: serializer.fromJson<int?>(json['mp']),
+      maxMp: serializer.fromJson<int?>(json['maxMp']),
+      san: serializer.fromJson<int?>(json['san']),
+      maxSan: serializer.fromJson<int?>(json['maxSan']),
+      sourceService: serializer.fromJson<String?>(json['sourceService']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2238,6 +2384,13 @@ class Character extends DataClass implements Insertable<Character> {
       'name': serializer.toJson<String>(name),
       'url': serializer.toJson<String?>(url),
       'imagePath': serializer.toJson<String?>(imagePath),
+      'hp': serializer.toJson<int?>(hp),
+      'maxHp': serializer.toJson<int?>(maxHp),
+      'mp': serializer.toJson<int?>(mp),
+      'maxMp': serializer.toJson<int?>(maxMp),
+      'san': serializer.toJson<int?>(san),
+      'maxSan': serializer.toJson<int?>(maxSan),
+      'sourceService': serializer.toJson<String?>(sourceService),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2249,6 +2402,13 @@ class Character extends DataClass implements Insertable<Character> {
           String? name,
           Value<String?> url = const Value.absent(),
           Value<String?> imagePath = const Value.absent(),
+          Value<int?> hp = const Value.absent(),
+          Value<int?> maxHp = const Value.absent(),
+          Value<int?> mp = const Value.absent(),
+          Value<int?> maxMp = const Value.absent(),
+          Value<int?> san = const Value.absent(),
+          Value<int?> maxSan = const Value.absent(),
+          Value<String?> sourceService = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Character(
@@ -2257,6 +2417,14 @@ class Character extends DataClass implements Insertable<Character> {
         name: name ?? this.name,
         url: url.present ? url.value : this.url,
         imagePath: imagePath.present ? imagePath.value : this.imagePath,
+        hp: hp.present ? hp.value : this.hp,
+        maxHp: maxHp.present ? maxHp.value : this.maxHp,
+        mp: mp.present ? mp.value : this.mp,
+        maxMp: maxMp.present ? maxMp.value : this.maxMp,
+        san: san.present ? san.value : this.san,
+        maxSan: maxSan.present ? maxSan.value : this.maxSan,
+        sourceService:
+            sourceService.present ? sourceService.value : this.sourceService,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -2267,6 +2435,15 @@ class Character extends DataClass implements Insertable<Character> {
       name: data.name.present ? data.name.value : this.name,
       url: data.url.present ? data.url.value : this.url,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      hp: data.hp.present ? data.hp.value : this.hp,
+      maxHp: data.maxHp.present ? data.maxHp.value : this.maxHp,
+      mp: data.mp.present ? data.mp.value : this.mp,
+      maxMp: data.maxMp.present ? data.maxMp.value : this.maxMp,
+      san: data.san.present ? data.san.value : this.san,
+      maxSan: data.maxSan.present ? data.maxSan.value : this.maxSan,
+      sourceService: data.sourceService.present
+          ? data.sourceService.value
+          : this.sourceService,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2280,6 +2457,13 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('name: $name, ')
           ..write('url: $url, ')
           ..write('imagePath: $imagePath, ')
+          ..write('hp: $hp, ')
+          ..write('maxHp: $maxHp, ')
+          ..write('mp: $mp, ')
+          ..write('maxMp: $maxMp, ')
+          ..write('san: $san, ')
+          ..write('maxSan: $maxSan, ')
+          ..write('sourceService: $sourceService, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2287,8 +2471,8 @@ class Character extends DataClass implements Insertable<Character> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, playerId, name, url, imagePath, createdAt, updatedAt);
+  int get hashCode => Object.hash(id, playerId, name, url, imagePath, hp, maxHp,
+      mp, maxMp, san, maxSan, sourceService, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2298,6 +2482,13 @@ class Character extends DataClass implements Insertable<Character> {
           other.name == this.name &&
           other.url == this.url &&
           other.imagePath == this.imagePath &&
+          other.hp == this.hp &&
+          other.maxHp == this.maxHp &&
+          other.mp == this.mp &&
+          other.maxMp == this.maxMp &&
+          other.san == this.san &&
+          other.maxSan == this.maxSan &&
+          other.sourceService == this.sourceService &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2308,6 +2499,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String> name;
   final Value<String?> url;
   final Value<String?> imagePath;
+  final Value<int?> hp;
+  final Value<int?> maxHp;
+  final Value<int?> mp;
+  final Value<int?> maxMp;
+  final Value<int?> san;
+  final Value<int?> maxSan;
+  final Value<String?> sourceService;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const CharactersCompanion({
@@ -2316,6 +2514,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.name = const Value.absent(),
     this.url = const Value.absent(),
     this.imagePath = const Value.absent(),
+    this.hp = const Value.absent(),
+    this.maxHp = const Value.absent(),
+    this.mp = const Value.absent(),
+    this.maxMp = const Value.absent(),
+    this.san = const Value.absent(),
+    this.maxSan = const Value.absent(),
+    this.sourceService = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -2325,6 +2530,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     required String name,
     this.url = const Value.absent(),
     this.imagePath = const Value.absent(),
+    this.hp = const Value.absent(),
+    this.maxHp = const Value.absent(),
+    this.mp = const Value.absent(),
+    this.maxMp = const Value.absent(),
+    this.san = const Value.absent(),
+    this.maxSan = const Value.absent(),
+    this.sourceService = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
   })  : playerId = Value(playerId),
@@ -2337,6 +2549,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? name,
     Expression<String>? url,
     Expression<String>? imagePath,
+    Expression<int>? hp,
+    Expression<int>? maxHp,
+    Expression<int>? mp,
+    Expression<int>? maxMp,
+    Expression<int>? san,
+    Expression<int>? maxSan,
+    Expression<String>? sourceService,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -2346,6 +2565,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (name != null) 'name': name,
       if (url != null) 'url': url,
       if (imagePath != null) 'image_path': imagePath,
+      if (hp != null) 'hp': hp,
+      if (maxHp != null) 'max_hp': maxHp,
+      if (mp != null) 'mp': mp,
+      if (maxMp != null) 'max_mp': maxMp,
+      if (san != null) 'san': san,
+      if (maxSan != null) 'max_san': maxSan,
+      if (sourceService != null) 'source_service': sourceService,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -2357,6 +2583,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       Value<String>? name,
       Value<String?>? url,
       Value<String?>? imagePath,
+      Value<int?>? hp,
+      Value<int?>? maxHp,
+      Value<int?>? mp,
+      Value<int?>? maxMp,
+      Value<int?>? san,
+      Value<int?>? maxSan,
+      Value<String?>? sourceService,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
     return CharactersCompanion(
@@ -2365,6 +2598,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       name: name ?? this.name,
       url: url ?? this.url,
       imagePath: imagePath ?? this.imagePath,
+      hp: hp ?? this.hp,
+      maxHp: maxHp ?? this.maxHp,
+      mp: mp ?? this.mp,
+      maxMp: maxMp ?? this.maxMp,
+      san: san ?? this.san,
+      maxSan: maxSan ?? this.maxSan,
+      sourceService: sourceService ?? this.sourceService,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -2388,6 +2628,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (imagePath.present) {
       map['image_path'] = Variable<String>(imagePath.value);
     }
+    if (hp.present) {
+      map['hp'] = Variable<int>(hp.value);
+    }
+    if (maxHp.present) {
+      map['max_hp'] = Variable<int>(maxHp.value);
+    }
+    if (mp.present) {
+      map['mp'] = Variable<int>(mp.value);
+    }
+    if (maxMp.present) {
+      map['max_mp'] = Variable<int>(maxMp.value);
+    }
+    if (san.present) {
+      map['san'] = Variable<int>(san.value);
+    }
+    if (maxSan.present) {
+      map['max_san'] = Variable<int>(maxSan.value);
+    }
+    if (sourceService.present) {
+      map['source_service'] = Variable<String>(sourceService.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2405,6 +2666,13 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('name: $name, ')
           ..write('url: $url, ')
           ..write('imagePath: $imagePath, ')
+          ..write('hp: $hp, ')
+          ..write('maxHp: $maxHp, ')
+          ..write('mp: $mp, ')
+          ..write('maxMp: $maxMp, ')
+          ..write('san: $san, ')
+          ..write('maxSan: $maxSan, ')
+          ..write('sourceService: $sourceService, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -4259,6 +4527,13 @@ typedef $$CharactersTableCreateCompanionBuilder = CharactersCompanion Function({
   required String name,
   Value<String?> url,
   Value<String?> imagePath,
+  Value<int?> hp,
+  Value<int?> maxHp,
+  Value<int?> mp,
+  Value<int?> maxMp,
+  Value<int?> san,
+  Value<int?> maxSan,
+  Value<String?> sourceService,
   required DateTime createdAt,
   required DateTime updatedAt,
 });
@@ -4268,6 +4543,13 @@ typedef $$CharactersTableUpdateCompanionBuilder = CharactersCompanion Function({
   Value<String> name,
   Value<String?> url,
   Value<String?> imagePath,
+  Value<int?> hp,
+  Value<int?> maxHp,
+  Value<int?> mp,
+  Value<int?> maxMp,
+  Value<int?> san,
+  Value<int?> maxSan,
+  Value<String?> sourceService,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -4327,6 +4609,41 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get imagePath => $state.composableBuilder(
       column: $state.table.imagePath,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get hp => $state.composableBuilder(
+      column: $state.table.hp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get maxHp => $state.composableBuilder(
+      column: $state.table.maxHp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get mp => $state.composableBuilder(
+      column: $state.table.mp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get maxMp => $state.composableBuilder(
+      column: $state.table.maxMp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get san => $state.composableBuilder(
+      column: $state.table.san,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get maxSan => $state.composableBuilder(
+      column: $state.table.maxSan,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get sourceService => $state.composableBuilder(
+      column: $state.table.sourceService,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -4393,6 +4710,41 @@ class $$CharactersTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
+  ColumnOrderings<int> get hp => $state.composableBuilder(
+      column: $state.table.hp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get maxHp => $state.composableBuilder(
+      column: $state.table.maxHp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get mp => $state.composableBuilder(
+      column: $state.table.mp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get maxMp => $state.composableBuilder(
+      column: $state.table.maxMp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get san => $state.composableBuilder(
+      column: $state.table.san,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get maxSan => $state.composableBuilder(
+      column: $state.table.maxSan,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get sourceService => $state.composableBuilder(
+      column: $state.table.sourceService,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
   ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
@@ -4441,6 +4793,13 @@ class $$CharactersTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String?> url = const Value.absent(),
             Value<String?> imagePath = const Value.absent(),
+            Value<int?> hp = const Value.absent(),
+            Value<int?> maxHp = const Value.absent(),
+            Value<int?> mp = const Value.absent(),
+            Value<int?> maxMp = const Value.absent(),
+            Value<int?> san = const Value.absent(),
+            Value<int?> maxSan = const Value.absent(),
+            Value<String?> sourceService = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
           }) =>
@@ -4450,6 +4809,13 @@ class $$CharactersTableTableManager extends RootTableManager<
             name: name,
             url: url,
             imagePath: imagePath,
+            hp: hp,
+            maxHp: maxHp,
+            mp: mp,
+            maxMp: maxMp,
+            san: san,
+            maxSan: maxSan,
+            sourceService: sourceService,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
@@ -4459,6 +4825,13 @@ class $$CharactersTableTableManager extends RootTableManager<
             required String name,
             Value<String?> url = const Value.absent(),
             Value<String?> imagePath = const Value.absent(),
+            Value<int?> hp = const Value.absent(),
+            Value<int?> maxHp = const Value.absent(),
+            Value<int?> mp = const Value.absent(),
+            Value<int?> maxMp = const Value.absent(),
+            Value<int?> san = const Value.absent(),
+            Value<int?> maxSan = const Value.absent(),
+            Value<String?> sourceService = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
           }) =>
@@ -4468,6 +4841,13 @@ class $$CharactersTableTableManager extends RootTableManager<
             name: name,
             url: url,
             imagePath: imagePath,
+            hp: hp,
+            maxHp: maxHp,
+            mp: mp,
+            maxMp: maxMp,
+            san: san,
+            maxSan: maxSan,
+            sourceService: sourceService,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
