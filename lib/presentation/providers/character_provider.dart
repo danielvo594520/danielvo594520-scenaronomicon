@@ -24,6 +24,15 @@ class CharacterListNotifier
     required String name,
     String? url,
     File? imageFile,
+    int? hp,
+    int? maxHp,
+    int? mp,
+    int? maxMp,
+    int? san,
+    int? maxSan,
+    String? sourceService,
+    Map<String, int>? params,
+    Map<String, int>? skills,
   }) async {
     String? imagePath;
     if (imageFile != null) {
@@ -35,6 +44,15 @@ class CharacterListNotifier
           name: name,
           url: url,
           imagePath: imagePath,
+          hp: hp,
+          maxHp: maxHp,
+          mp: mp,
+          maxMp: maxMp,
+          san: san,
+          maxSan: maxSan,
+          sourceService: sourceService,
+          params: params,
+          skills: skills,
         );
     ref.invalidateSelf();
   }
@@ -45,6 +63,15 @@ class CharacterListNotifier
     String? url,
     File? newImageFile,
     bool deleteImage = false,
+    int? hp,
+    int? maxHp,
+    int? mp,
+    int? maxMp,
+    int? san,
+    int? maxSan,
+    String? sourceService,
+    Map<String, int>? params,
+    Map<String, int>? skills,
   }) async {
     String? imagePath;
 
@@ -63,6 +90,15 @@ class CharacterListNotifier
           name: name,
           url: url,
           imagePath: imagePath,
+          hp: hp,
+          maxHp: maxHp,
+          mp: mp,
+          maxMp: maxMp,
+          san: san,
+          maxSan: maxSan,
+          sourceService: sourceService,
+          params: params,
+          skills: skills,
         );
 
     // 古い画像を削除
