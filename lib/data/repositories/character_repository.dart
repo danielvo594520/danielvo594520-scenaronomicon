@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../domain/models/character.dart' as model;
@@ -8,6 +10,23 @@ class CharacterRepository {
   CharacterRepository(this._db);
 
   final AppDatabase _db;
+
+  /// JSON文字列をMap<String, int>に変換
+  Map<String, int>? _parseJsonToMap(String? jsonStr) {
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
+      return decoded.map((k, v) => MapEntry(k, v as int));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Map<String, int>をJSON文字列に変換
+  String? _mapToJson(Map<String, int>? map) {
+    if (map == null || map.isEmpty) return null;
+    return jsonEncode(map);
+  }
 
   /// 指定プレイヤーの全キャラクターをセッション数付きで取得
   Future<List<CharacterWithStats>> getByPlayerId(int playerId) async {
@@ -42,6 +61,8 @@ class CharacterRepository {
         san: character.san,
         maxSan: character.maxSan,
         sourceService: character.sourceService,
+        params: _parseJsonToMap(character.params),
+        skills: _parseJsonToMap(character.skills),
         sessionCount: sessionCounts[character.id] ?? 0,
         createdAt: character.createdAt,
         updatedAt: character.updatedAt,
@@ -67,6 +88,8 @@ class CharacterRepository {
       san: row.san,
       maxSan: row.maxSan,
       sourceService: row.sourceService,
+      params: _parseJsonToMap(row.params),
+      skills: _parseJsonToMap(row.skills),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -123,6 +146,8 @@ class CharacterRepository {
     int? san,
     int? maxSan,
     String? sourceService,
+    Map<String, int>? params,
+    Map<String, int>? skills,
   }) {
     final now = DateTime.now();
     return _db.into(_db.characters).insert(
@@ -138,6 +163,8 @@ class CharacterRepository {
             san: Value(san),
             maxSan: Value(maxSan),
             sourceService: Value(sourceService),
+            params: Value(_mapToJson(params)),
+            skills: Value(_mapToJson(skills)),
             createdAt: now,
             updatedAt: now,
           ),
@@ -157,6 +184,8 @@ class CharacterRepository {
     int? san,
     int? maxSan,
     String? sourceService,
+    Map<String, int>? params,
+    Map<String, int>? skills,
   }) async {
     // 既存の画像パスを取得
     final existing = await getById(id);
@@ -174,6 +203,8 @@ class CharacterRepository {
         san: Value(san),
         maxSan: Value(maxSan),
         sourceService: Value(sourceService),
+        params: Value(_mapToJson(params)),
+        skills: Value(_mapToJson(skills)),
         updatedAt: Value(DateTime.now()),
       ),
     );

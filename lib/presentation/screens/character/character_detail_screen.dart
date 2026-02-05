@@ -117,6 +117,18 @@ class CharacterDetailScreen extends ConsumerWidget {
                 _buildStatsSection(context, character),
               ],
 
+              // 能力値
+              if (character.hasParams) ...[
+                const Divider(),
+                _buildParamsSection(context, character),
+              ],
+
+              // 技能値
+              if (character.hasSkills) ...[
+                const Divider(),
+                _buildSkillsSection(context, character),
+              ],
+
               const Divider(),
               const SizedBox(height: 8),
 
@@ -280,13 +292,86 @@ class CharacterDetailScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                Text(
-                  ' / ${max ?? '?'}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
+                if (max != null)
+                  Text(
+                    ' / $max',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParamsSection(BuildContext context, model.Character character) {
+    final params = character.params!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '能力値',
+          style: Theme.of(context)
+              .textTheme
+              .titleSmall
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: params.entries.map((e) {
+            return _buildParamChip(context, e.key, e.value);
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSkillsSection(BuildContext context, model.Character character) {
+    final skills = character.skills!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '技能値',
+          style: Theme.of(context)
+              .textTheme
+              .titleSmall
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: skills.entries.map((e) {
+            return _buildParamChip(context, e.key, e.value);
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildParamChip(BuildContext context, String label, int value) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$value',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ],
         ),

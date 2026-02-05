@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -102,6 +102,15 @@ class AppDatabase extends _$AppDatabase {
             );
             await customStatement(
               'ALTER TABLE characters ADD COLUMN source_service TEXT',
+            );
+          }
+          if (from < 8) {
+            // キャラクターに能力値・技能値カラムを追加（JSON形式で保存）
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN params TEXT',
+            );
+            await customStatement(
+              'ALTER TABLE characters ADD COLUMN skills TEXT',
             );
           }
         },

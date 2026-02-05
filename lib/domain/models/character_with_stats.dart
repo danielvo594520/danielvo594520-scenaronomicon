@@ -13,6 +13,8 @@ class CharacterWithStats {
     this.san,
     this.maxSan,
     this.sourceService,
+    this.params,
+    this.skills,
     required this.sessionCount,
     required this.createdAt,
     required this.updatedAt,
@@ -33,6 +35,10 @@ class CharacterWithStats {
   final int? maxSan;
   final String? sourceService;
 
+  // 能力値・技能値
+  final Map<String, int>? params;
+  final Map<String, int>? skills;
+
   final int sessionCount;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -45,6 +51,12 @@ class CharacterWithStats {
       maxMp != null ||
       san != null ||
       maxSan != null;
+
+  /// 能力値が存在するかどうか
+  bool get hasParams => params != null && params!.isNotEmpty;
+
+  /// 技能値が存在するかどうか
+  bool get hasSkills => skills != null && skills!.isNotEmpty;
 }
 
 /// キャラクターの参加セッション情報

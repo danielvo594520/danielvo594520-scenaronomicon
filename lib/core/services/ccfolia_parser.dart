@@ -4,6 +4,9 @@ import 'character_sheet/character_sheet_result.dart';
 
 /// ココフォリア駒出力JSONパーサー
 class CcfoliaParser {
+  /// HP/MP/SANとして認識するラベル（これ以外のstatusは技能値として扱う）
+  static const _basicStatusLabels = {'HP', 'MP', 'SAN'};
+
   /// ココフォリア駒出力JSONをパース
   ///
   /// 正常にパースできた場合は[CharacterSheetResult]を返す。
@@ -19,6 +22,13 @@ class CcfoliaParser {
       if (data == null) return null;
 
       final status = data['status'] as List<dynamic>? ?? [];
+      final paramsRaw = data['params'] as List<dynamic>? ?? [];
+
+      // 能力値を抽出（params配列から）
+      final params = _extractParams(paramsRaw);
+
+      // 技能値を抽出（status配列からHP/MP/SAN以外）
+      final skills = _extractSkills(status);
 
       return CharacterSheetResult(
         name: data['name'] as String?,
@@ -30,6 +40,8 @@ class CcfoliaParser {
         san: _findStatusValue(status, 'SAN'),
         maxSan: null,
         imageUrl: data['iconUrl'] as String?,
+        params: params.isNotEmpty ? params : null,
+        skills: skills.isNotEmpty ? skills : null,
         rawData: {
           'externalUrl': data['externalUrl'],
           'iconUrl': data['iconUrl'],
@@ -48,6 +60,38 @@ class CcfoliaParser {
       }
     }
     return null;
+  }
+
+  /// params配列から能力値を抽出
+  static Map<String, int> _extractParams(List<dynamic> paramsRaw) {
+    final result = <String, int>{};
+    for (final item in paramsRaw) {
+      if (item is Map<String, dynamic>) {
+        final label = item['label'] as String?;
+        final value = int.tryParse(item['value']?.toString() ?? '');
+        if (label != null && value != null) {
+          result[label] = value;
+        }
+      }
+    }
+    return result;
+  }
+
+  /// status配列から技能値を抽出（HP/MP/SAN以外）
+  static Map<String, int> _extractSkills(List<dynamic> status) {
+    final result = <String, int>{};
+    for (final item in status) {
+      if (item is Map<String, dynamic>) {
+        final label = item['label'] as String?;
+        final value = int.tryParse(item['value']?.toString() ?? '');
+        if (label != null &&
+            value != null &&
+            !_basicStatusLabels.contains(label)) {
+          result[label] = value;
+        }
+      }
+    }
+    return result;
   }
 
   /// JSONテキストがココフォリア駒形式かどうかを簡易チェック

@@ -10,6 +10,8 @@ class CharacterSheetResult {
     this.san,
     this.maxSan,
     this.imageUrl,
+    this.params,
+    this.skills,
     this.rawData,
   });
 
@@ -40,6 +42,12 @@ class CharacterSheetResult {
   /// プロフィール画像URL
   final String? imageUrl;
 
+  /// 能力値（STR, CON, SIZ, DEX, APP, INT, POW, EDU等）
+  final Map<String, int>? params;
+
+  /// 技能値（技能名 → 値）
+  final Map<String, int>? skills;
+
   /// 取得した生データ（デバッグ用）
   final Map<String, dynamic>? rawData;
 
@@ -51,6 +59,12 @@ class CharacterSheetResult {
       maxMp != null ||
       san != null ||
       maxSan != null;
+
+  /// 能力値が存在するかどうか
+  bool get hasParams => params != null && params!.isNotEmpty;
+
+  /// 技能値が存在するかどうか
+  bool get hasSkills => skills != null && skills!.isNotEmpty;
 
   @override
   String toString() {

@@ -31,6 +31,8 @@ class CharacterListNotifier
     int? san,
     int? maxSan,
     String? sourceService,
+    Map<String, int>? params,
+    Map<String, int>? skills,
   }) async {
     String? imagePath;
     if (imageFile != null) {
@@ -49,6 +51,8 @@ class CharacterListNotifier
           san: san,
           maxSan: maxSan,
           sourceService: sourceService,
+          params: params,
+          skills: skills,
         );
     ref.invalidateSelf();
   }
@@ -66,6 +70,8 @@ class CharacterListNotifier
     int? san,
     int? maxSan,
     String? sourceService,
+    Map<String, int>? params,
+    Map<String, int>? skills,
   }) async {
     String? imagePath;
 
@@ -91,6 +97,8 @@ class CharacterListNotifier
           san: san,
           maxSan: maxSan,
           sourceService: sourceService,
+          params: params,
+          skills: skills,
         );
 
     // 古い画像を削除

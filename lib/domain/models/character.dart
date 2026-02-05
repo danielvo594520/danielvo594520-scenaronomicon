@@ -13,6 +13,8 @@ class Character {
     this.san,
     this.maxSan,
     this.sourceService,
+    this.params,
+    this.skills,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -32,6 +34,10 @@ class Character {
   final int? maxSan;
   final String? sourceService;
 
+  // 能力値・技能値
+  final Map<String, int>? params;
+  final Map<String, int>? skills;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -43,4 +49,10 @@ class Character {
       maxMp != null ||
       san != null ||
       maxSan != null;
+
+  /// 能力値が存在するかどうか
+  bool get hasParams => params != null && params!.isNotEmpty;
+
+  /// 技能値が存在するかどうか
+  bool get hasSkills => skills != null && skills!.isNotEmpty;
 }

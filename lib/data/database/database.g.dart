@@ -2113,6 +2113,16 @@ class $CharactersTable extends Characters
   late final GeneratedColumn<String> sourceService = GeneratedColumn<String>(
       'source_service', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _paramsMeta = const VerificationMeta('params');
+  @override
+  late final GeneratedColumn<String> params = GeneratedColumn<String>(
+      'params', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _skillsMeta = const VerificationMeta('skills');
+  @override
+  late final GeneratedColumn<String> skills = GeneratedColumn<String>(
+      'skills', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -2139,6 +2149,8 @@ class $CharactersTable extends Characters
         san,
         maxSan,
         sourceService,
+        params,
+        skills,
         createdAt,
         updatedAt
       ];
@@ -2203,6 +2215,14 @@ class $CharactersTable extends Characters
           sourceService.isAcceptableOrUnknown(
               data['source_service']!, _sourceServiceMeta));
     }
+    if (data.containsKey('params')) {
+      context.handle(_paramsMeta,
+          params.isAcceptableOrUnknown(data['params']!, _paramsMeta));
+    }
+    if (data.containsKey('skills')) {
+      context.handle(_skillsMeta,
+          skills.isAcceptableOrUnknown(data['skills']!, _skillsMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -2248,6 +2268,10 @@ class $CharactersTable extends Characters
           .read(DriftSqlType.int, data['${effectivePrefix}max_san']),
       sourceService: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_service']),
+      params: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}params']),
+      skills: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}skills']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -2274,6 +2298,8 @@ class Character extends DataClass implements Insertable<Character> {
   final int? san;
   final int? maxSan;
   final String? sourceService;
+  final String? params;
+  final String? skills;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Character(
@@ -2289,6 +2315,8 @@ class Character extends DataClass implements Insertable<Character> {
       this.san,
       this.maxSan,
       this.sourceService,
+      this.params,
+      this.skills,
       required this.createdAt,
       required this.updatedAt});
   @override
@@ -2324,6 +2352,12 @@ class Character extends DataClass implements Insertable<Character> {
     if (!nullToAbsent || sourceService != null) {
       map['source_service'] = Variable<String>(sourceService);
     }
+    if (!nullToAbsent || params != null) {
+      map['params'] = Variable<String>(params);
+    }
+    if (!nullToAbsent || skills != null) {
+      map['skills'] = Variable<String>(skills);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2350,6 +2384,10 @@ class Character extends DataClass implements Insertable<Character> {
       sourceService: sourceService == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceService),
+      params:
+          params == null && nullToAbsent ? const Value.absent() : Value(params),
+      skills:
+          skills == null && nullToAbsent ? const Value.absent() : Value(skills),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2371,6 +2409,8 @@ class Character extends DataClass implements Insertable<Character> {
       san: serializer.fromJson<int?>(json['san']),
       maxSan: serializer.fromJson<int?>(json['maxSan']),
       sourceService: serializer.fromJson<String?>(json['sourceService']),
+      params: serializer.fromJson<String?>(json['params']),
+      skills: serializer.fromJson<String?>(json['skills']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2391,6 +2431,8 @@ class Character extends DataClass implements Insertable<Character> {
       'san': serializer.toJson<int?>(san),
       'maxSan': serializer.toJson<int?>(maxSan),
       'sourceService': serializer.toJson<String?>(sourceService),
+      'params': serializer.toJson<String?>(params),
+      'skills': serializer.toJson<String?>(skills),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2409,6 +2451,8 @@ class Character extends DataClass implements Insertable<Character> {
           Value<int?> san = const Value.absent(),
           Value<int?> maxSan = const Value.absent(),
           Value<String?> sourceService = const Value.absent(),
+          Value<String?> params = const Value.absent(),
+          Value<String?> skills = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       Character(
@@ -2425,6 +2469,8 @@ class Character extends DataClass implements Insertable<Character> {
         maxSan: maxSan.present ? maxSan.value : this.maxSan,
         sourceService:
             sourceService.present ? sourceService.value : this.sourceService,
+        params: params.present ? params.value : this.params,
+        skills: skills.present ? skills.value : this.skills,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
@@ -2444,6 +2490,8 @@ class Character extends DataClass implements Insertable<Character> {
       sourceService: data.sourceService.present
           ? data.sourceService.value
           : this.sourceService,
+      params: data.params.present ? data.params.value : this.params,
+      skills: data.skills.present ? data.skills.value : this.skills,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2464,6 +2512,8 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('san: $san, ')
           ..write('maxSan: $maxSan, ')
           ..write('sourceService: $sourceService, ')
+          ..write('params: $params, ')
+          ..write('skills: $skills, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2471,8 +2521,23 @@ class Character extends DataClass implements Insertable<Character> {
   }
 
   @override
-  int get hashCode => Object.hash(id, playerId, name, url, imagePath, hp, maxHp,
-      mp, maxMp, san, maxSan, sourceService, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      id,
+      playerId,
+      name,
+      url,
+      imagePath,
+      hp,
+      maxHp,
+      mp,
+      maxMp,
+      san,
+      maxSan,
+      sourceService,
+      params,
+      skills,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2489,6 +2554,8 @@ class Character extends DataClass implements Insertable<Character> {
           other.san == this.san &&
           other.maxSan == this.maxSan &&
           other.sourceService == this.sourceService &&
+          other.params == this.params &&
+          other.skills == this.skills &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2506,6 +2573,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<int?> san;
   final Value<int?> maxSan;
   final Value<String?> sourceService;
+  final Value<String?> params;
+  final Value<String?> skills;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const CharactersCompanion({
@@ -2521,6 +2590,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.san = const Value.absent(),
     this.maxSan = const Value.absent(),
     this.sourceService = const Value.absent(),
+    this.params = const Value.absent(),
+    this.skills = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -2537,6 +2608,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.san = const Value.absent(),
     this.maxSan = const Value.absent(),
     this.sourceService = const Value.absent(),
+    this.params = const Value.absent(),
+    this.skills = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
   })  : playerId = Value(playerId),
@@ -2556,6 +2629,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<int>? san,
     Expression<int>? maxSan,
     Expression<String>? sourceService,
+    Expression<String>? params,
+    Expression<String>? skills,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -2572,6 +2647,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (san != null) 'san': san,
       if (maxSan != null) 'max_san': maxSan,
       if (sourceService != null) 'source_service': sourceService,
+      if (params != null) 'params': params,
+      if (skills != null) 'skills': skills,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -2590,6 +2667,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       Value<int?>? san,
       Value<int?>? maxSan,
       Value<String?>? sourceService,
+      Value<String?>? params,
+      Value<String?>? skills,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt}) {
     return CharactersCompanion(
@@ -2605,6 +2684,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       san: san ?? this.san,
       maxSan: maxSan ?? this.maxSan,
       sourceService: sourceService ?? this.sourceService,
+      params: params ?? this.params,
+      skills: skills ?? this.skills,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -2649,6 +2730,12 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (sourceService.present) {
       map['source_service'] = Variable<String>(sourceService.value);
     }
+    if (params.present) {
+      map['params'] = Variable<String>(params.value);
+    }
+    if (skills.present) {
+      map['skills'] = Variable<String>(skills.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2673,6 +2760,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('san: $san, ')
           ..write('maxSan: $maxSan, ')
           ..write('sourceService: $sourceService, ')
+          ..write('params: $params, ')
+          ..write('skills: $skills, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -4534,6 +4623,8 @@ typedef $$CharactersTableCreateCompanionBuilder = CharactersCompanion Function({
   Value<int?> san,
   Value<int?> maxSan,
   Value<String?> sourceService,
+  Value<String?> params,
+  Value<String?> skills,
   required DateTime createdAt,
   required DateTime updatedAt,
 });
@@ -4550,6 +4641,8 @@ typedef $$CharactersTableUpdateCompanionBuilder = CharactersCompanion Function({
   Value<int?> san,
   Value<int?> maxSan,
   Value<String?> sourceService,
+  Value<String?> params,
+  Value<String?> skills,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -4644,6 +4737,16 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get sourceService => $state.composableBuilder(
       column: $state.table.sourceService,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get params => $state.composableBuilder(
+      column: $state.table.params,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get skills => $state.composableBuilder(
+      column: $state.table.skills,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -4745,6 +4848,16 @@ class $$CharactersTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
+  ColumnOrderings<String> get params => $state.composableBuilder(
+      column: $state.table.params,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get skills => $state.composableBuilder(
+      column: $state.table.skills,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
   ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
       column: $state.table.createdAt,
       builder: (column, joinBuilders) =>
@@ -4800,6 +4913,8 @@ class $$CharactersTableTableManager extends RootTableManager<
             Value<int?> san = const Value.absent(),
             Value<int?> maxSan = const Value.absent(),
             Value<String?> sourceService = const Value.absent(),
+            Value<String?> params = const Value.absent(),
+            Value<String?> skills = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
           }) =>
@@ -4816,6 +4931,8 @@ class $$CharactersTableTableManager extends RootTableManager<
             san: san,
             maxSan: maxSan,
             sourceService: sourceService,
+            params: params,
+            skills: skills,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),
@@ -4832,6 +4949,8 @@ class $$CharactersTableTableManager extends RootTableManager<
             Value<int?> san = const Value.absent(),
             Value<int?> maxSan = const Value.absent(),
             Value<String?> sourceService = const Value.absent(),
+            Value<String?> params = const Value.absent(),
+            Value<String?> skills = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
           }) =>
@@ -4848,6 +4967,8 @@ class $$CharactersTableTableManager extends RootTableManager<
             san: san,
             maxSan: maxSan,
             sourceService: sourceService,
+            params: params,
+            skills: skills,
             createdAt: createdAt,
             updatedAt: updatedAt,
           ),

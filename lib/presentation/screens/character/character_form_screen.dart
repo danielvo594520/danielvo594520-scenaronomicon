@@ -45,6 +45,10 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
   int? _maxSan;
   String? _sourceService;
 
+  // 能力値・技能値
+  Map<String, int>? _params;
+  Map<String, int>? _skills;
+
   bool get _isEdit => widget.characterId != null;
 
   @override
@@ -70,6 +74,8 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
       _san = character.san;
       _maxSan = character.maxSan;
       _sourceService = character.sourceService;
+      _params = character.params;
+      _skills = character.skills;
       _isInitialized = true;
       if (mounted) setState(() {});
     });
@@ -236,6 +242,11 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
   }
 
   Widget _buildStatChip(String label, int? current, int? max, Color color) {
+    // maxがある場合は「current / max」、ない場合は「current」のみ
+    final valueText = max != null
+        ? '${current ?? '?'} / $max'
+        : '${current ?? '?'}';
+
     return Chip(
       avatar: CircleAvatar(
         backgroundColor: color.withAlpha(50),
@@ -244,7 +255,7 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
           style: TextStyle(color: color, fontWeight: FontWeight.bold),
         ),
       ),
-      label: Text('${current ?? '?'} / ${max ?? '?'}'),
+      label: Text(valueText),
     );
   }
 
@@ -288,6 +299,10 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
       _san = result.san;
       _maxSan = result.maxSan;
       _sourceService = 'ココフォリア';
+
+      // 能力値・技能値を適用
+      _params = result.params;
+      _skills = result.skills;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -322,6 +337,8 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
               san: _san,
               maxSan: _maxSan,
               sourceService: _sourceService,
+              params: _params,
+              skills: _skills,
             );
         ref.invalidate(characterDetailProvider(widget.characterId!));
       } else {
@@ -338,6 +355,8 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
               san: _san,
               maxSan: _maxSan,
               sourceService: _sourceService,
+              params: _params,
+              skills: _skills,
             );
       }
 
@@ -386,13 +405,17 @@ class _CcfoliaInputDialogState extends ConsumerState<_CcfoliaInputDialog> {
 
     return AlertDialog(
       title: const Text('ココフォリア駒から入力'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+        ),
+        child: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Text(
                 'ココフォリアで「駒を出力」したJSONを貼り付けてください',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -420,6 +443,7 @@ class _CcfoliaInputDialogState extends ConsumerState<_CcfoliaInputDialog> {
               _buildParseResult(parseState),
             ],
           ),
+        ),
         ),
       ),
       actions: [
@@ -500,16 +524,62 @@ class _CcfoliaInputDialogState extends ConsumerState<_CcfoliaInputDialog> {
                 ],
               ),
               const Divider(),
+
+              // 基本情報
               if (result.name != null)
                 _buildResultRow('名前', result.name!),
               if (result.externalUrl != null)
                 _buildResultRow('URL', result.externalUrl!, maxLines: 1),
+
+              // HP/MP/SAN
               if (result.hp != null)
                 _buildResultRow('HP', '${result.hp}'),
               if (result.mp != null)
                 _buildResultRow('MP', '${result.mp}'),
               if (result.san != null)
                 _buildResultRow('SAN', '${result.san}'),
+
+              // 能力値
+              if (result.hasParams) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '能力値',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: result.params!.entries.map((e) {
+                    return _buildSmallChip('${e.key}: ${e.value}');
+                  }).toList(),
+                ),
+              ],
+
+              // 技能値
+              if (result.hasSkills) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '技能値',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: result.skills!.entries.map((e) {
+                    return _buildSmallChip('${e.key}: ${e.value}');
+                  }).toList(),
+                ),
+              ],
             ],
           ),
         ),
@@ -546,6 +616,23 @@ class _CcfoliaInputDialogState extends ConsumerState<_CcfoliaInputDialog> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSmallChip(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withAlpha(30),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 11,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
       ),
     );
   }

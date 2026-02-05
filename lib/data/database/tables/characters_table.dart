@@ -18,6 +18,10 @@ class Characters extends Table {
   IntColumn get maxSan => integer().nullable()();
   TextColumn get sourceService => text().nullable()();
 
+  // 能力値・技能値（JSON形式で保存）
+  TextColumn get params => text().nullable()();
+  TextColumn get skills => text().nullable()();
+
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 }
