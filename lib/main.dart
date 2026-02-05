@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'app.dart';
 import 'data/database/database.dart';
@@ -8,6 +9,9 @@ import 'presentation/providers/database_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 日本語ロケールの初期化（カレンダー表示用）
+  await initializeDateFormatting('ja_JP');
 
   final db = AppDatabase();
   await seedDefaultData(db);
