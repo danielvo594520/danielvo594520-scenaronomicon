@@ -1,102 +1,68 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/services/ccfolia_parser.dart';
 import '../../core/services/character_sheet/character_sheet_result.dart';
-import '../../core/services/character_sheet/character_sheet_service.dart';
-import '../../core/services/character_sheet/character_sheet_service_factory.dart';
 
-/// キャラクターシート取得の状態
-sealed class CharacterSheetFetchState {
-  const CharacterSheetFetchState();
+/// ココフォリア駒パースの状態
+sealed class CcfoliaParseState {
+  const CcfoliaParseState();
 }
 
 /// 初期状態
-class CharacterSheetFetchIdle extends CharacterSheetFetchState {
-  const CharacterSheetFetchIdle();
+class CcfoliaParseIdle extends CcfoliaParseState {
+  const CcfoliaParseIdle();
 }
 
-/// 取得中
-class CharacterSheetFetchLoading extends CharacterSheetFetchState {
-  const CharacterSheetFetchLoading({required this.serviceName});
-
-  final String serviceName;
-}
-
-/// 取得成功
-class CharacterSheetFetchSuccess extends CharacterSheetFetchState {
-  const CharacterSheetFetchSuccess({
-    required this.result,
-    required this.serviceName,
-  });
+/// パース成功
+class CcfoliaParseSuccess extends CcfoliaParseState {
+  const CcfoliaParseSuccess({required this.result});
 
   final CharacterSheetResult result;
-  final String serviceName;
 }
 
-/// 取得エラー
-class CharacterSheetFetchError extends CharacterSheetFetchState {
-  const CharacterSheetFetchError({required this.message});
+/// パースエラー
+class CcfoliaParseError extends CcfoliaParseState {
+  const CcfoliaParseError({required this.message});
 
   final String message;
 }
 
-/// 非対応URL
-class CharacterSheetFetchUnsupported extends CharacterSheetFetchState {
-  const CharacterSheetFetchUnsupported();
-}
+/// ココフォリア駒パースのNotifier
+class CcfoliaParseNotifier extends StateNotifier<CcfoliaParseState> {
+  CcfoliaParseNotifier() : super(const CcfoliaParseIdle());
 
-/// キャラクターシート取得のNotifier
-class CharacterSheetFetchNotifier extends StateNotifier<CharacterSheetFetchState> {
-  CharacterSheetFetchNotifier() : super(const CharacterSheetFetchIdle());
-
-  final _factory = CharacterSheetServiceFactory();
-
-  /// URLが対応しているかチェック
-  bool canHandle(String url) {
-    if (url.isEmpty) return false;
-    return _factory.canHandle(url);
-  }
-
-  /// 対応サービス名を取得
-  String? getServiceName(String url) {
-    return _factory.getServiceName(url);
-  }
-
-  /// キャラクター情報を取得
-  Future<void> fetch(String url) async {
-    if (url.isEmpty) {
-      state = const CharacterSheetFetchUnsupported();
+  /// JSONテキストをパース
+  void parse(String jsonText) {
+    if (jsonText.trim().isEmpty) {
+      state = const CcfoliaParseError(message: 'テキストが入力されていません');
       return;
     }
 
-    final service = _factory.getServiceForUrl(url);
-    if (service == null) {
-      state = const CharacterSheetFetchUnsupported();
-      return;
-    }
-
-    state = CharacterSheetFetchLoading(serviceName: service.serviceName);
-
-    try {
-      final result = await service.fetchCharacter(url);
-      state = CharacterSheetFetchSuccess(
-        result: result,
-        serviceName: service.serviceName,
+    // フォーマットチェック
+    if (!CcfoliaParser.isValidFormat(jsonText)) {
+      state = const CcfoliaParseError(
+        message: 'ココフォリア駒出力の形式ではありません。\n「駒を出力」でコピーしたJSONを貼り付けてください。',
       );
-    } on CharacterSheetFetchException catch (e) {
-      state = CharacterSheetFetchError(message: e.message);
-    } catch (e) {
-      state = CharacterSheetFetchError(message: '予期しないエラーが発生しました: $e');
+      return;
     }
+
+    final result = CcfoliaParser.parse(jsonText);
+    if (result == null) {
+      state = const CcfoliaParseError(message: 'パースに失敗しました');
+      return;
+    }
+
+    state = CcfoliaParseSuccess(result: result);
   }
 
   /// 状態をリセット
   void reset() {
-    state = const CharacterSheetFetchIdle();
+    state = const CcfoliaParseIdle();
   }
 }
 
-/// キャラクターシート取得のProvider
-final characterSheetFetchProvider =
-    StateNotifierProvider.autoDispose<CharacterSheetFetchNotifier, CharacterSheetFetchState>(
-  (ref) => CharacterSheetFetchNotifier(),
+/// ココフォリア駒パースのProvider
+final ccfoliaParseProvider =
+    StateNotifierProvider.autoDispose<CcfoliaParseNotifier, CcfoliaParseState>(
+  (ref) => CcfoliaParseNotifier(),
 );

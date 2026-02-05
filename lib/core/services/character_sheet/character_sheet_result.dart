@@ -2,6 +2,7 @@
 class CharacterSheetResult {
   const CharacterSheetResult({
     this.name,
+    this.externalUrl,
     this.hp,
     this.maxHp,
     this.mp,
@@ -14,6 +15,9 @@ class CharacterSheetResult {
 
   /// キャラクター名
   final String? name;
+
+  /// キャラクターシートURL（ココフォリア駒のexternalUrl）
+  final String? externalUrl;
 
   /// 現在HP
   final int? hp;

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/services/character_sheet/character_sheet_result.dart';
-import '../../../core/services/character_sheet/character_sheet_service_factory.dart';
 import '../../providers/character_provider.dart';
 import '../../providers/character_sheet_provider.dart';
 import '../../widgets/image_selector.dart';
@@ -47,7 +46,6 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
   String? _sourceService;
 
   bool get _isEdit => widget.characterId != null;
-  final _factory = CharacterSheetServiceFactory();
 
   @override
   void dispose() {
@@ -83,14 +81,6 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
       ref.watch(characterDetailProvider(widget.characterId!));
       _initializeFromCharacter();
     }
-
-    // URL変更時にサービス対応状況を更新
-    final url = _urlController.text.trim();
-    final canFetch = _factory.canHandle(url);
-    final serviceName = _factory.getServiceName(url);
-
-    // キャラクターシート取得状態を監視
-    final fetchState = ref.watch(characterSheetFetchProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -140,49 +130,42 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
               ),
               const SizedBox(height: 16),
 
-              // URL + 取得ボタン
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _urlController,
-                      decoration: InputDecoration(
-                        labelText: 'キャラクターシートURL',
-                        hintText: 'https://...',
-                        prefixIcon: const Icon(Icons.link),
-                        helperText: canFetch ? '対応: $serviceName' : null,
-                        helperStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      keyboardType: TextInputType.url,
-                      onChanged: (_) => setState(() {}),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return null;
-                        }
-                        final uri = Uri.tryParse(value.trim());
-                        if (uri == null || !uri.hasScheme) {
-                          return '有効なURLを入力してください';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: _buildFetchButton(canFetch, fetchState),
-                  ),
-                ],
+              // URL入力欄
+              TextFormField(
+                controller: _urlController,
+                decoration: const InputDecoration(
+                  labelText: 'キャラクターシートURL',
+                  hintText: 'https://...',
+                  prefixIcon: Icon(Icons.link),
+                  helperText: 'ココフォリア駒から自動入力可能',
+                ),
+                keyboardType: TextInputType.url,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return null;
+                  }
+                  final uri = Uri.tryParse(value.trim());
+                  if (uri == null || !uri.hasScheme) {
+                    return '有効なURLを入力してください';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
 
-              // 取得結果プレビュー / ステータス表示
-              _buildFetchResultOrStatus(fetchState),
+              // ココフォリア駒から入力ボタン
+              OutlinedButton.icon(
+                onPressed: _showCcfoliaInputDialog,
+                icon: const Icon(Icons.content_paste),
+                label: const Text('ココフォリア駒から入力'),
+              ),
+              const SizedBox(height: 16),
 
-              const SizedBox(height: 24),
+              // 既存のステータス情報がある場合
+              if (_hasStats) ...[
+                _buildCurrentStatsCard(),
+                const SizedBox(height: 16),
+              ],
 
               // 保存ボタン
               FilledButton.icon(
@@ -198,154 +181,6 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFetchButton(bool canFetch, CharacterSheetFetchState fetchState) {
-    final isLoading = fetchState is CharacterSheetFetchLoading;
-
-    return FilledButton.tonalIcon(
-      onPressed: canFetch && !isLoading ? _fetchCharacterSheet : null,
-      icon: isLoading
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.download),
-      label: const Text('取得'),
-    );
-  }
-
-  Widget _buildFetchResultOrStatus(CharacterSheetFetchState fetchState) {
-    // 取得成功時のプレビュー
-    if (fetchState is CharacterSheetFetchSuccess) {
-      return _buildFetchResultCard(fetchState.result, fetchState.serviceName);
-    }
-
-    // エラー時
-    if (fetchState is CharacterSheetFetchError) {
-      return Card(
-        color: Theme.of(context).colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: Theme.of(context).colorScheme.onErrorContainer,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  fetchState.message,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // ローディング時
-    if (fetchState is CharacterSheetFetchLoading) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(width: 12),
-              Text('${fetchState.serviceName}からデータを取得中...'),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // 既存のステータス情報がある場合
-    if (_hasStats) {
-      return _buildCurrentStatsCard();
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildFetchResultCard(CharacterSheetResult result, String serviceName) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '$serviceNameから取得',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            const Divider(),
-
-            // 取得したデータ表示
-            if (result.name != null) ...[
-              _buildResultRow('名前', result.name!),
-            ],
-            if (result.hp != null || result.maxHp != null) ...[
-              _buildResultRow(
-                'HP',
-                '${result.hp ?? '?'} / ${result.maxHp ?? '?'}',
-              ),
-            ],
-            if (result.mp != null || result.maxMp != null) ...[
-              _buildResultRow(
-                'MP',
-                '${result.mp ?? '?'} / ${result.maxMp ?? '?'}',
-              ),
-            ],
-            if (result.san != null || result.maxSan != null) ...[
-              _buildResultRow(
-                'SAN',
-                '${result.san ?? '?'} / ${result.maxSan ?? '?'}',
-              ),
-            ],
-
-            const SizedBox(height: 16),
-
-            // 適用ボタン
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    ref.read(characterSheetFetchProvider.notifier).reset();
-                  },
-                  child: const Text('キャンセル'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.icon(
-                  onPressed: () => _applyFetchResult(result, serviceName),
-                  icon: const Icon(Icons.check),
-                  label: const Text('適用'),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );
@@ -413,31 +248,6 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
     );
   }
 
-  Widget _buildResultRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 60,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   bool get _hasStats =>
       _hp != null ||
       _maxHp != null ||
@@ -446,18 +256,28 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
       _san != null ||
       _maxSan != null;
 
-  Future<void> _fetchCharacterSheet() async {
-    final url = _urlController.text.trim();
-    if (url.isEmpty) return;
+  /// ココフォリア駒入力ダイアログを表示
+  Future<void> _showCcfoliaInputDialog() async {
+    final result = await showDialog<CharacterSheetResult>(
+      context: context,
+      builder: (context) => const _CcfoliaInputDialog(),
+    );
 
-    await ref.read(characterSheetFetchProvider.notifier).fetch(url);
+    if (result != null && mounted) {
+      _applyResult(result);
+    }
   }
 
-  void _applyFetchResult(CharacterSheetResult result, String serviceName) {
+  void _applyResult(CharacterSheetResult result) {
     setState(() {
       // 名前が取得できていて、現在空の場合のみ適用
       if (result.name != null && _nameController.text.trim().isEmpty) {
         _nameController.text = result.name!;
+      }
+
+      // URLが取得できていて、現在空の場合のみ適用
+      if (result.externalUrl != null && _urlController.text.trim().isEmpty) {
+        _urlController.text = result.externalUrl!;
       }
 
       // ステータス情報を適用
@@ -467,11 +287,8 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
       _maxMp = result.maxMp;
       _san = result.san;
       _maxSan = result.maxSan;
-      _sourceService = serviceName;
+      _sourceService = 'ココフォリア';
     });
-
-    // 取得状態をリセット
-    ref.read(characterSheetFetchProvider.notifier).reset();
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('キャラクター情報を適用しました')),
@@ -542,5 +359,194 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+}
+
+/// ココフォリア駒入力ダイアログ
+class _CcfoliaInputDialog extends ConsumerStatefulWidget {
+  const _CcfoliaInputDialog();
+
+  @override
+  ConsumerState<_CcfoliaInputDialog> createState() =>
+      _CcfoliaInputDialogState();
+}
+
+class _CcfoliaInputDialogState extends ConsumerState<_CcfoliaInputDialog> {
+  final _textController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final parseState = ref.watch(ccfoliaParseProvider);
+
+    return AlertDialog(
+      title: const Text('ココフォリア駒から入力'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'ココフォリアで「駒を出力」したJSONを貼り付けてください',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _textController,
+                maxLines: 6,
+                decoration: const InputDecoration(
+                  hintText: '{"kind":"character","data":{...}}',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (_) {
+                  // テキスト変更時にパース実行
+                  ref.read(ccfoliaParseProvider.notifier).parse(
+                        _textController.text,
+                      );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // パース結果表示
+              _buildParseResult(parseState),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            ref.read(ccfoliaParseProvider.notifier).reset();
+            Navigator.of(context).pop();
+          },
+          child: const Text('キャンセル'),
+        ),
+        FilledButton(
+          onPressed: parseState is CcfoliaParseSuccess
+              ? () {
+                  ref.read(ccfoliaParseProvider.notifier).reset();
+                  Navigator.of(context).pop(parseState.result);
+                }
+              : null,
+          child: const Text('適用'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildParseResult(CcfoliaParseState state) {
+    if (state is CcfoliaParseIdle) {
+      return const SizedBox.shrink();
+    }
+
+    if (state is CcfoliaParseError) {
+      return Card(
+        color: Theme.of(context).colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  state.message,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (state is CcfoliaParseSuccess) {
+      final result = state.result;
+      return Card(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '取得したデータ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              if (result.name != null)
+                _buildResultRow('名前', result.name!),
+              if (result.externalUrl != null)
+                _buildResultRow('URL', result.externalUrl!, maxLines: 1),
+              if (result.hp != null)
+                _buildResultRow('HP', '${result.hp}'),
+              if (result.mp != null)
+                _buildResultRow('MP', '${result.mp}'),
+              if (result.san != null)
+                _buildResultRow('SAN', '${result.san}'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildResultRow(String label, String value, {int? maxLines}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 50,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: maxLines,
+              overflow: maxLines != null ? TextOverflow.ellipsis : null,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
