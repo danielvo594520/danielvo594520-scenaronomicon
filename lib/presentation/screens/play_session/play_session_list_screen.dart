@@ -151,7 +151,9 @@ class _PlaySessionListScreenState extends ConsumerState<PlaySessionListScreen> {
             });
           },
           onPageChanged: (focusedDay) {
-            _focusedDay = focusedDay;
+            setState(() {
+              _focusedDay = focusedDay;
+            });
           },
           calendarStyle: CalendarStyle(
             markersMaxCount: 3,
