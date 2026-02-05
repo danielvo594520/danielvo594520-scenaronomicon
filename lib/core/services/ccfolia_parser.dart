@@ -38,11 +38,11 @@ class CcfoliaParser {
         name: data['name'] as String?,
         externalUrl: data['externalUrl'] as String?,
         hp: _findStatusValue(status, 'HP'),
-        maxHp: null, // ココフォリア駒には最大値がないためnull
+        maxHp: _findStatusMax(status, 'HP'),
         mp: _findStatusValue(status, 'MP'),
-        maxMp: null,
+        maxMp: _findStatusMax(status, 'MP'),
         san: _findStatusValue(status, 'SAN'),
-        maxSan: null,
+        maxSan: _findStatusMax(status, 'SAN'),
         imageUrl: data['iconUrl'] as String?,
         params: params.isNotEmpty ? params : null,
         skills: skills.isNotEmpty ? skills : null,
@@ -56,11 +56,24 @@ class CcfoliaParser {
     }
   }
 
-  /// status配列から指定ラベルの値を取得
+  /// status配列から指定ラベルの現在値を取得
   static int? _findStatusValue(List<dynamic> status, String label) {
     for (final item in status) {
       if (item is Map<String, dynamic> && item['label'] == label) {
         return int.tryParse(item['value']?.toString() ?? '');
+      }
+    }
+    return null;
+  }
+
+  /// status配列から指定ラベルの最大値を取得
+  /// ココフォリアでは最大値が0の場合は現在値のみ表示されるため、0はnullとして扱う
+  static int? _findStatusMax(List<dynamic> status, String label) {
+    for (final item in status) {
+      if (item is Map<String, dynamic> && item['label'] == label) {
+        final max = int.tryParse(item['max']?.toString() ?? '');
+        // 最大値が0の場合はnullとして扱う（ココフォリアでは0は「最大値なし」を意味する）
+        return (max != null && max > 0) ? max : null;
       }
     }
     return null;
