@@ -227,16 +227,61 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
   }
 
   Widget _buildStatsGrid() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 8,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (_hp != null || _maxHp != null)
-          _buildStatChip('HP', _hp, _maxHp, Colors.red),
-        if (_mp != null || _maxMp != null)
-          _buildStatChip('MP', _mp, _maxMp, Colors.blue),
-        if (_san != null || _maxSan != null)
-          _buildStatChip('SAN', _san, _maxSan, Colors.purple),
+        // HP/MP/SAN
+        if (_hp != null || _maxHp != null || _mp != null || _maxMp != null || _san != null || _maxSan != null)
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              if (_hp != null || _maxHp != null)
+                _buildStatChip('HP', _hp, _maxHp, Colors.red),
+              if (_mp != null || _maxMp != null)
+                _buildStatChip('MP', _mp, _maxMp, Colors.blue),
+              if (_san != null || _maxSan != null)
+                _buildStatChip('SAN', _san, _maxSan, Colors.purple),
+            ],
+          ),
+
+        // 能力値
+        if (_params != null && _params!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            '能力値',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _params!.entries.map((e) {
+              return _buildParamChip(e.key, e.value);
+            }).toList(),
+          ),
+        ],
+
+        // 技能値
+        if (_skills != null && _skills!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            '技能値',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _skills!.entries.map((e) {
+              return _buildParamChip(e.key, e.value);
+            }).toList(),
+          ),
+        ],
       ],
     );
   }
@@ -259,13 +304,41 @@ class _CharacterFormScreenState extends ConsumerState<CharacterFormScreen> {
     );
   }
 
+  Widget _buildParamChip(String label, int value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '$value',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   bool get _hasStats =>
       _hp != null ||
       _maxHp != null ||
       _mp != null ||
       _maxMp != null ||
       _san != null ||
-      _maxSan != null;
+      _maxSan != null ||
+      (_params != null && _params!.isNotEmpty) ||
+      (_skills != null && _skills!.isNotEmpty);
 
   /// ココフォリア駒入力ダイアログを表示
   Future<void> _showCcfoliaInputDialog() async {

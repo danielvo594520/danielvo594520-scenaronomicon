@@ -23,12 +23,16 @@ class CcfoliaParser {
 
       final status = data['status'] as List<dynamic>? ?? [];
       final paramsRaw = data['params'] as List<dynamic>? ?? [];
+      final commands = data['commands'] as String? ?? '';
 
       // 能力値を抽出（params配列から）
       final params = _extractParams(paramsRaw);
 
-      // 技能値を抽出（status配列からHP/MP/SAN以外）
-      final skills = _extractSkills(status);
+      // 技能値を抽出（status配列からHP/MP/SAN以外 + commandsから）
+      final skillsFromStatus = _extractSkills(status);
+      final skillsFromCommands = _extractSkillsFromCommands(commands);
+      // commandsの値を優先（より詳細な技能が含まれる）
+      final skills = {...skillsFromStatus, ...skillsFromCommands};
 
       return CharacterSheetResult(
         name: data['name'] as String?,
@@ -91,6 +95,40 @@ class CcfoliaParser {
         }
       }
     }
+    return result;
+  }
+
+  /// commands文字列から技能値を抽出
+  /// 形式: CC<=数値 【技能名】 または 1d100<={変数名} 【表示名】
+  static Map<String, int> _extractSkillsFromCommands(String commands) {
+    final result = <String, int>{};
+
+    // 除外するラベル（能力値ロールや特殊なコマンド）
+    const excludeLabels = {
+      'STR',
+      'CON',
+      'POW',
+      'DEX',
+      'APP',
+      'SIZ',
+      'INT',
+      'EDU',
+      '正気度ロール',
+      'ダメージ判定',
+    };
+
+    // パターン: CC<=数値 【技能名】 または CC<=数値　【技能名】（全角スペース対応）
+    final pattern = RegExp(r'CC<=(\d+)\s*【(.+?)】');
+
+    for (final match in pattern.allMatches(commands)) {
+      final value = int.tryParse(match.group(1) ?? '');
+      final label = match.group(2);
+
+      if (value != null && label != null && !excludeLabels.contains(label)) {
+        result[label] = value;
+      }
+    }
+
     return result;
   }
 
